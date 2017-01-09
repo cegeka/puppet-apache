@@ -151,6 +151,7 @@ class apache::params inherits ::apache::version {
     $docroot              = '/var/www/html'
     $docroot_owner        = 'apache'
     $docroot_group        = 'apache'
+    $docroot_mode         = '2750'
     $alias_icons_path     = $::apache::version::distrelease ? {
       '7'     => '/usr/share/httpd/icons',
       default => '/var/www/icons',
