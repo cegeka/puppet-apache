@@ -149,8 +149,8 @@ class apache::params inherits ::apache::version {
     $mime_support_package = 'mailcap'
     $mime_types_config    = '/etc/mime.types'
     $docroot              = '/var/www/html'
-    $docroot_owner        = 'root'
-    $docroot_group        = 'root'
+    $docroot_owner        = 'apache'
+    $docroot_group        = 'apache'
     $alias_icons_path     = $::apache::version::distrelease ? {
       '7'     => '/usr/share/httpd/icons',
       default => '/var/www/icons',
