@@ -77,7 +77,9 @@ class apache::params inherits ::apache::version {
     $ports_file           = "${conf_dir}/ports.conf"
     $pidfile              = 'run/httpd.pid'
     $logroot              = '/var/log/httpd'
-    $logroot_mode         = undef
+    $logroot_mode         = '0775'
+    $logroot_owner        = 'apache'
+    $logroot_group        = 'apache'
     $lib_path             = 'modules'
     $mpm_module           = 'prefork'
     $dev_packages         = 'httpd-devel'
@@ -147,6 +149,9 @@ class apache::params inherits ::apache::version {
     $mime_support_package = 'mailcap'
     $mime_types_config    = '/etc/mime.types'
     $docroot              = '/var/www/html'
+    $docroot_owner        = 'apache'
+    $docroot_group        = 'apache'
+    $docroot_mode         = '2750'
     $alias_icons_path     = $::apache::version::distrelease ? {
       '7'     => '/usr/share/httpd/icons',
       default => '/var/www/icons',
