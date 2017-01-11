@@ -84,9 +84,9 @@ class apache::params inherits ::apache::version {
     $lib_path             = 'modules'
     $mpm_module           = 'prefork'
     $dev_packages         = 'httpd-devel'
-    $default_ssl_cert     = '/etc/pki/tls/certs/localhost.crt'
-    $default_ssl_key      = '/etc/pki/tls/private/localhost.key'
-    $ssl_certs_dir        = '/etc/pki/tls/certs'
+    $default_ssl_cert     = '/etc/pki/tls/certs/localhost.crt',
+    $default_ssl_key      = '/etc/pki/tls/private/localhost.key',
+    $ssl_certs_dir        = '/etc/pki/tls/certs',
     $ssl_protocol         = 'All -SSLv2 -SSLv3',
     $ssl_cipher           = 'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS',
     $ssl_honorcipherorder = 'On',
