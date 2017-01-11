@@ -57,9 +57,15 @@ class apache::mod::passenger (
   }
 
   if $::osfamily == 'RedHat' and $manage_repo {
+    if $::operatingsystem == 'Amazon' {
+      $baseurl = 'https://oss-binaries.phusionpassenger.com/yum/passenger/el/6Server/$basearch'
+    } else {
+      $baseurl = 'https://oss-binaries.phusionpassenger.com/yum/passenger/el/$releasever/$basearch'
+    }
+
     yumrepo { 'passenger':
       ensure        => 'present',
-      baseurl       => 'https://oss-binaries.phusionpassenger.com/yum/passenger/el/$releasever/$basearch',
+      baseurl       => $baseurl,
       descr         => 'passenger',
       enabled       => '1',
       gpgcheck      => '0',
@@ -71,7 +77,7 @@ class apache::mod::passenger (
     }
   }
 
-  unless ($::operatingsystem == 'SLES' and $::operatingsystemmajrelease < '12') {
+  unless ($::operatingsystem == 'SLES') {
     $_id = $mod_id
     $_path = $mod_path
     ::apache::mod { 'passenger':
