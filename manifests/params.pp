@@ -74,6 +74,7 @@ class apache::params inherits ::apache::version {
     $vhost_dir            = "${httpd_dir}/conf.d"
     $vhost_enable_dir     = undef
     $conf_file            = 'httpd.conf'
+    $ssl_file             = "${confd_dir}/ssl.conf"
     $ports_file           = "${conf_dir}/ports.conf"
     $pidfile              = 'run/httpd.pid'
     $logroot              = '/var/log/httpd'
@@ -218,6 +219,7 @@ class apache::params inherits ::apache::version {
     $vhost_dir           = "${httpd_dir}/sites-available"
     $vhost_enable_dir    = "${httpd_dir}/sites-enabled"
     $conf_file           = 'apache2.conf'
+    $ssl_file             = "${mod_dir}/ssl.conf"
     $ports_file          = "${conf_dir}/ports.conf"
     $pidfile             = "\${APACHE_PID_FILE}"
     $logroot             = '/var/log/apache2'
@@ -268,7 +270,7 @@ class apache::params inherits ::apache::version {
       $shib2_lib = 'mod_shib2.so'
     }
     $mod_libs             = {
-      'shib2' => $shib2_lib
+      'shib2' => $shib2_lib,
     }
     $conf_template          = 'apache/httpd.conf.erb'
     $keepalive              = 'Off'
@@ -354,6 +356,7 @@ class apache::params inherits ::apache::version {
     $vhost_dir        = "${httpd_dir}/Vhosts"
     $vhost_enable_dir = undef
     $conf_file        = 'httpd.conf'
+    $ssl_file         = "${mod_dir}/ssl.conf"
     $ports_file       = "${conf_dir}/ports.conf"
     $pidfile          = '/var/run/httpd.pid'
     $logroot          = '/var/log/apache24'
@@ -423,6 +426,7 @@ class apache::params inherits ::apache::version {
     $vhost_dir        = "${httpd_dir}/vhosts.d"
     $vhost_enable_dir = undef
     $conf_file        = 'httpd.conf'
+    $ssl_file         = "${mod_dir}/ssl.conf"
     $ports_file       = "${conf_dir}/ports.conf"
     $logroot          = '/var/log/apache2'
     $logroot_mode     = undef
@@ -490,41 +494,38 @@ class apache::params inherits ::apache::version {
     $vhost_dir           = "${httpd_dir}/sites-available"
     $vhost_enable_dir    = "${httpd_dir}/sites-enabled"
     $conf_file           = 'httpd.conf'
+    $ssl_file            = "${mod_dir}/ssl.conf"
     $ports_file          = "${conf_dir}/ports.conf"
     $pidfile             = '/var/run/httpd2.pid'
     $logroot             = '/var/log/apache2'
     $logroot_mode        = undef
-    $lib_path            = '/usr/lib64/apache2-prefork'
-    $suse_lib_path       = '/usr/lib64/apache2'
+    $lib_path            = '/usr/lib64/apache2' #changes for some modules based on mpm
     $mpm_module          = 'prefork'
-    if $::operatingsystemrelease < '11' {
-      $default_ssl_cert    = '/etc/apache2/ssl.crt/snakeoil-rsa.crt'
-      $default_ssl_key     = '/etc/apache2/ssl.key/snakeoil-rsa.key'
-      } else {
-        $default_ssl_cert    = '/etc/ssl/servercerts/servercert.pem'
-        $default_ssl_key     = '/etc/ssl/servercerts/serverkey.pem'
-      }
+    $default_ssl_cert    = '/etc/apache2/ssl.crt/server.crt'
+    $default_ssl_key     = '/etc/apache2/ssl.key/server.key'
     $ssl_certs_dir       = '/etc/ssl/certs'
     $suphp_addhandler    = 'x-httpd-php'
     $suphp_engine        = 'off'
     $suphp_configpath    = '/etc/php5/apache2'
     $php_version         = '5'
-    if $::operatingsystemrelease < '11' {
+    if $::operatingsystemrelease < '11' or $::operatingsystemrelease >= '12' {
       $mod_packages      = {
         'auth_kerb'   => 'apache2-mod_auth_kerb',
         'perl'        => 'apache2-mod_perl',
         'php5'        => 'apache2-mod_php5',
         'python'      => 'apache2-mod_python',
+        'security'    => 'apache2-mod_security2',
+        'worker'      => 'apache2-worker',
         }
-      } else {
-          $mod_packages        = {
-            'auth_kerb'   => 'apache2-mod_auth_kerb',
-            'perl'        => 'apache2-mod_perl',
-            'php5'        => 'apache2-mod_php53',
-            'python'      => 'apache2-mod_python',
-            'security'    => 'apache2-mod_security2',
-          }
+    } else {
+      $mod_packages        = {
+        'auth_kerb'   => 'apache2-mod_auth_kerb',
+        'perl'        => 'apache2-mod_perl',
+        'php5'        => 'apache2-mod_php53',
+        'python'      => 'apache2-mod_python',
+        'security'    => 'apache2-mod_security2',
       }
+    }
     $mod_libs             = {
       'security'       => '/usr/lib64/apache2/mod_security2.so',
       'php53'          => '/usr/lib64/apache2/mod_php5.so',

@@ -70,6 +70,7 @@ class apache (
   $logroot_group          = $::apache::params::logroot_group,
   $log_level              = $::apache::params::log_level,
   $log_formats            = {},
+  $ssl_file               = $::apache::params::ssl_file,
   $ports_file             = $::apache::params::ports_file,
   $docroot                = $::apache::params::docroot,
   $docroot_mode           = $::apache::params::docroot_mode,
@@ -80,6 +81,7 @@ class apache (
   $server_signature       = 'On',
   $trace_enable           = 'On',
   $allow_encoded_slashes  = undef,
+  $file_e_tag             = undef,
   $package_ensure         = 'installed',
   $use_optional_includes  = $::apache::params::use_optional_includes,
   $use_systemd            = $::apache::params::use_systemd,
@@ -141,7 +143,7 @@ class apache (
   if $manage_group {
     group { $group:
       ensure  => present,
-      require => Package['httpd']
+      require => Package['httpd'],
     }
   }
 
@@ -262,7 +264,7 @@ class apache (
   }
   concat::fragment { 'Apache ports header':
     target  => $ports_file,
-    content => template('apache/ports_header.erb')
+    content => template('apache/ports_header.erb'),
   }
 
   if $::apache::conf_dir and $::apache::params::conf_file {
@@ -288,7 +290,7 @@ class apache (
 
       file { [
         '/etc/apache2/modules.d/.keep_www-servers_apache-2',
-        '/etc/apache2/vhosts.d/.keep_www-servers_apache-2'
+        '/etc/apache2/vhosts.d/.keep_www-servers_apache-2',
       ]:
         ensure  => absent,
         require => Package['httpd'],
@@ -347,7 +349,7 @@ class apache (
       }
     }
     class { '::apache::default_confd_files':
-      all => $default_confd_files
+      all => $default_confd_files,
     }
     if $mpm_module and $mpm_module != 'false' { # lint:ignore:quoted_booleans
       include "::apache::mod::${mpm_module}"
@@ -364,7 +366,7 @@ class apache (
 
     ::apache::vhost { 'default':
       ensure          => $default_vhost_ensure,
-      port            => 80,
+      port            => '80',
       docroot         => $docroot,
       scriptalias     => $scriptalias,
       serveradmin     => $serveradmin,
@@ -380,7 +382,7 @@ class apache (
     }
     ::apache::vhost { 'default-ssl':
       ensure          => $default_ssl_vhost_ensure,
-      port            => 443,
+      port            => '443',
       ssl             => true,
       docroot         => $docroot,
       scriptalias     => $scriptalias,
