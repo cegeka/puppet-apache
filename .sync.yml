@@ -1,23 +1,51 @@
 ---
-.travis.yml:
-  includes:
-  - rvm: 2.3.1
-    env: PUPPET_GEM_VERSION="~> 4.0" STDLIB_LOG_DEPRECATIONS="false"
-    bundler_args: --without system_tests
-  - rvm: 2.1.9
-    env: PUPPET_GEM_VERSION="~> 4.0" STDLIB_LOG_DEPRECATIONS="false"
-    bundler_args: --without system_tests
-  - rvm: 2.1.5
-    env: PUPPET_GEM_VERSION="~> 3.0" FUTURE_PARSER="yes"
-    bundler_args: --without system_tests
-  - rvm: 2.1.5
-    env: PUPPET_GEM_VERSION="~> 3.0"
-    bundler_args: --without system_tests
-  - rvm: 1.9.3
-    env: PUPPET_GEM_VERSION="~> 3.0"
-    bundler_args: --without system_tests
+".gitlab-ci.yml":
+  delete: true
+".rubocop.yml":
+  default_configs:
+    inherit_from: ".rubocop_todo.yml"
+".travis.yml":
+  global_env: 
+    - HONEYCOMB_WRITEKEY="7f3c63a70eecc61d635917de46bea4e6",HONEYCOMB_DATASET="litmus tests"
+  deploy_to_forge:
+    enabled: false
+  secure: ''
+  branches:
+  - release
+  use_litmus: true
+  litmus:
+    provision_list:
+    - ---travis_el
+    - travis_deb
+    - travis_el7
+    - travis_el8
+    complex:
+    - collection:
+        puppet_collection:
+        - puppet6
+        provision_list:
+        - travis_ub_6
+    - collection:
+        puppet_collection:
+        - puppet5
+        provision_list:
+        - travis_ub_5
+  simplecov: true
+  notifications:
+    slack:
+      secure: MrXQwGIUO7WNmLbe7iiWgURiZPUgyvDLkKe3d9S58ohE6gdN6pqlsjP8YgodK8JmIBV1zp5Wj/0cXUmY3xvCtnDmII0DCEk2Y1Cs/W1drKZtS/0BsUpJkj0rDP2fSlKsY5ifESdEta/y8+NkjRnqadbl7SQPYeek4IjAfxjjuig=
+appveyor.yml:
+  delete: true
+Gemfile:
+  optional:
+    ":development":
+    - gem: github_changelog_generator
+      git: https://github.com/skywinder/github-changelog-generator
+      ref: 20ee04ba1234e9e83eb2ffb5056e23d641c7a018
+      condition: Gem::Version.new(RUBY_VERSION.dup) >= Gem::Version.new('2.2.2')
 Rakefile:
-  extra_disabled_lint_checks:
-  - 'disable_only_variable_string'
+  requires:
+  - puppet-lint/tasks/puppet-lint
 spec/spec_helper.rb:
-  allow_deprecations: true
+  mock_with: ":rspec"
+  coverage_report: true

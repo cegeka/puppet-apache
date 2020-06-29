@@ -1,7 +1,22 @@
+# @summary
+#   Installs `mod_autoindex`
+# 
+# @see https://httpd.apache.org/docs/current/mod/mod_autoindex.html for additional documentation.
+#
 class apache::mod::autoindex {
   include ::apache
   ::apache::mod { 'autoindex': }
-  # Template uses no variables
+
+  # Determine icon filename suffix for autoindex.conf.erb
+  case $::operatingsystem {
+    'Debian', 'Ubuntu': {
+      $icon_suffix = '-20x22'
+    }
+    default: {
+      $icon_suffix = ''
+    }
+  }
+
   file { 'autoindex.conf':
     ensure  => file,
     path    => "${::apache::mod_dir}/autoindex.conf",

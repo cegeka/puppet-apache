@@ -1,60 +1,48 @@
 require 'spec_helper_acceptance'
 
-case fact('osfamily')
-when 'Debian'
+case os[:family]
+when 'debian', 'ubuntu'
   service_name = 'apache2'
-  majrelease = fact('operatingsystemmajrelease')
-  if ['6', '7', '10.04', '12.04'].include?(majrelease)
-    variant = :itk_only
-  else
-    variant = :prefork
-  end
-when 'RedHat'
-  unless fact('operatingsystemmajrelease') == '5'
+  variant = :prefork
+when 'redhat'
+  unless os[:release] =~ %r{^5}
+    variant = (os[:release].to_i >= 7) ? :prefork : :itk_only
     service_name = 'httpd'
-    majrelease = fact('operatingsystemmajrelease')
-    if ['6'].include?(majrelease)
-      variant = :itk_only
-    else
-      variant = :prefork
-    end
   end
-when 'FreeBSD'
+when 'freebsd'
   service_name = 'apache24'
-  majrelease = fact('operatingsystemmajrelease')
   variant = :prefork
 end
 
-describe 'apache::mod::itk class', :if => service_name do
+# IAC-787: The http-itk mod package is not available in any of the standard RHEL/CentOS 8.x repos. Disable this test
+# on those platforms until we can find a suitable source for this package.
+describe 'apache::mod::itk class', if: service_name, unless: os[:family] == 'redhat' && os[:release].to_i >= 8 do
   describe 'running puppet code' do
-    # Using puppet_apply as a helper
     let(:pp) do
       case variant
-        when :prefork
-          <<-EOS
+      when :prefork
+        <<-MANIFEST
             class { 'apache':
               mpm_module => 'prefork',
             }
             class { 'apache::mod::itk': }
-          EOS
-        when :itk_only
-          <<-EOS
+          MANIFEST
+      when :itk_only
+        <<-MANIFEST
             class { 'apache':
               mpm_module => 'itk',
             }
-          EOS
-        end
+          MANIFEST
+      end
     end
-    # Run it twice and test for idempotency
-    it_behaves_like "a idempotent resource"
+
+    it 'behaves idempotently' do
+      idempotent_apply(pp)
+    end
   end
 
-  describe service(service_name) do
+  describe service(service_name), skip: 'FM-8483' do
     it { is_expected.to be_running }
-    if (fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8')
-      pending 'Should be enabled - Bug 760616 on Debian 8'
-    else
-      it { should be_enabled }
-    end
+    it { is_expected.to be_enabled }
   end
 end

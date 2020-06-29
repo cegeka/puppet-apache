@@ -1,12 +1,26 @@
+# @summary
+#   Installs and configures `mod_proxy_balancer`.
+# 
+# @param manager
+#   Toggle whether to enable balancer manager support.
+#
+# @param maanger_path
+#   Server relative path to balancer manager.
+#
+# @param allow_from
+#   List of IPs from which the balancer manager can be accessed.
+#
+# @param apache_version
+#   Version of Apache to install module on.
+# 
+# @see https://httpd.apache.org/docs/current/mod/mod_proxy_balancer.html for additional documentation.
+#
 class apache::mod::proxy_balancer(
-  $manager        = false,
-  $manager_path   = '/balancer-manager',
-  $allow_from     = ['127.0.0.1','::1'],
-  $apache_version = $::apache::apache_version,
+  Boolean $manager                   = false,
+  Stdlib::Absolutepath $manager_path = '/balancer-manager',
+  Array $allow_from                  = ['127.0.0.1','::1'],
+  $apache_version                    = $::apache::apache_version,
 ) {
-  validate_bool($manager)
-  validate_string($manager_path)
-  validate_array($allow_from)
 
   include ::apache::mod::proxy
   include ::apache::mod::proxy_http

@@ -1,3 +1,8 @@
+# @summary
+#   Installs `mod_proxy_html`.
+#
+# @see https://httpd.apache.org/docs/current/mod/mod_proxy_html.html for additional documentation.
+#
 class apache::mod::proxy_html {
   include ::apache
   Class['::apache::mod::proxy'] -> Class['::apache::mod::proxy_html']
@@ -5,7 +10,7 @@ class apache::mod::proxy_html {
 
   # Add libxml2
   case $::osfamily {
-    /RedHat|FreeBSD|Gentoo/: {
+    /RedHat|FreeBSD|Gentoo|Suse/: {
       ::apache::mod { 'xml2enc': }
       $loadfiles = undef
     }
@@ -14,15 +19,28 @@ class apache::mod::proxy_html {
         'i686'  => 'i386',
         default => $::hardwaremodel,
       }
-      $loadfiles = $::apache::params::distrelease ? {
-        '6'     => ['/usr/lib/libxml2.so.2'],
-        '10'    => ['/usr/lib/libxml2.so.2'],
-        default => ["/usr/lib/${gnu_path}-linux-gnu/libxml2.so.2"],
+      case $::operatingsystem {
+        'Ubuntu': {
+          $loadfiles = $::apache::params::distrelease ? {
+            '10'    => ['/usr/lib/libxml2.so.2'],
+            default => ["/usr/lib/${gnu_path}-linux-gnu/libxml2.so.2"],
+          }
+        }
+        'Debian': {
+          $loadfiles = $::apache::params::distrelease ? {
+            '6'     => ['/usr/lib/libxml2.so.2'],
+            default => ["/usr/lib/${gnu_path}-linux-gnu/libxml2.so.2"],
+          }
+        }
+        default: {
+          $loadfiles = ["/usr/lib/${gnu_path}-linux-gnu/libxml2.so.2"]
+        }
       }
       if versioncmp($::apache::apache_version, '2.4') >= 0 {
         ::apache::mod { 'xml2enc': }
       }
     }
+    default: { }
   }
 
   ::apache::mod { 'proxy_html':

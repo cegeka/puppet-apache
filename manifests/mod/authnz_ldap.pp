@@ -1,26 +1,27 @@
-# lint:ignore:variable_is_lowercase required for compatibility
+# @summary
+#   Installs `mod_authnz_ldap`.
+# 
+# @param verify_server_cert
+#   Whether to force te verification of a server cert or not.
+# 
+# @param package_name
+#   The name of the ldap package.
+# 
+# @see https://httpd.apache.org/docs/current/mod/mod_authnz_ldap.html for additional documentation.
+#
 class apache::mod::authnz_ldap (
-  $verify_server_cert = true,
-  $verifyServerCert   = undef,
-  $package_name       = undef,
+  Boolean $verify_server_cert = true,
+  $package_name               = undef,
 ) {
+
   include ::apache
   include '::apache::mod::ldap'
   ::apache::mod { 'authnz_ldap':
     package => $package_name,
   }
 
-  if $verifyServerCert {
-    warning('Class[\'apache::mod::authnz_ldap\'] parameter verifyServerCert is deprecated in favor of verify_server_cert')
-    $_verify_server_cert = $verifyServerCert
-  } else {
-    $_verify_server_cert = $verify_server_cert
-  }
-
-  validate_bool($_verify_server_cert)
-
   # Template uses:
-  # - $_verify_server_cert
+  # - $verify_server_cert
   file { 'authnz_ldap.conf':
     ensure  => file,
     path    => "${::apache::mod_dir}/authnz_ldap.conf",
@@ -31,4 +32,3 @@ class apache::mod::authnz_ldap (
     notify  => Class['apache::service'],
   }
 }
-# lint:endignore

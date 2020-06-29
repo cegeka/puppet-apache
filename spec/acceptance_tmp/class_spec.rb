@@ -1,48 +1,44 @@
 require 'spec_helper_acceptance'
-require_relative './version.rb'
-
+apache_hash = apache_settings_hash
 describe 'apache class' do
   context 'default parameters' do
     let(:pp) { "class { 'apache': }" }
 
-    it_behaves_like "a idempotent resource"
+    it 'behaves idempotently' do
+      idempotent_apply(pp)
+    end
 
     describe 'apache_version fact' do
-      before :all do
-        apply_manifest("include apache", :catch_failures => true)
-        version_check_pp = <<-EOS
+      let(:result) do
+        apply_manifest('include apache', catch_failures: true)
+        version_check_pp = <<-MANIFEST
         notice("apache_version = >${apache_version}<")
-        EOS
-        @result = apply_manifest(version_check_pp, :catch_failures => true)
+        MANIFEST
+        apply_manifest(version_check_pp, catch_failures: true)
       end
 
       it {
-        expect(@result.output).to match(/apache_version = >#{$apache_version}.*</)
+        expect(result.stdout).to match(%r{apache_version = >#{apache_hash['version']}.*<})
       }
     end
 
-    describe package($package_name) do
+    describe package(apache_hash['package_name']) do
       it { is_expected.to be_installed }
     end
 
-    describe service($service_name) do
-      if (fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8')
-        pending 'Should be enabled - Bug 760616 on Debian 8'
-      else
-        it { should be_enabled }
-      end
+    describe service(apache_hash['service_name']), skip: 'FM-8483' do
+      it { is_expected.to be_enabled }
       it { is_expected.to be_running }
     end
 
     describe port(80) do
-      it { should be_listening }
+      it { is_expected.to be_listening }
     end
   end
 
   context 'custom site/mod dir parameters' do
-    # Using puppet_apply as a helper
     let(:pp) do
-      <<-EOS
+      <<-MANIFEST
         if $::osfamily == 'RedHat' and "$::selinux" == "true" {
           $semanage_package = $::operatingsystemmajrelease ? {
             '5'     => 'policycoreutils',
@@ -71,18 +67,15 @@ describe 'apache class' do
           mod_dir   => '/apache_spec/apache_custom/mods',
           vhost_dir => '/apache_spec/apache_custom/vhosts',
         }
-      EOS
+      MANIFEST
     end
 
-    # Run it twice and test for idempotency
-    it_behaves_like "a idempotent resource"
+    it 'behaves idempotently' do
+      idempotent_apply(pp)
+    end
 
-    describe service($service_name) do
-      if (fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8')
-        pending 'Should be enabled - Bug 760616 on Debian 8'
-      else
-        it { should be_enabled }
-      end
+    describe service(apache_hash['service_name']), skip: 'FM-8483' do
+      it { is_expected.to be_enabled }
       it { is_expected.to be_running }
     end
   end
