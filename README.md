@@ -14,7 +14,6 @@
 [Installing Apache modules]: #installing-apache-modules
 [Installing arbitrary modules]: #installing-arbitrary-modules
 [Installing specific modules]: #installing-specific-modules
-[Configuring FastCGI servers]: #configuring-fastcgi-servers-to-handle-php-files
 [Load balancing examples]: #load-balancing-examples
 [apache affects]: #what-the-apache-module-affects
 
@@ -23,60 +22,56 @@
 [Limitations]: #limitations
 
 [Development]: #development
-[Contributing]: #contributing
 
 [`AddDefaultCharset`]: https://httpd.apache.org/docs/current/mod/core.html#adddefaultcharset
-[`add_listen`]: #add_listen
+[`add_listen`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#add_listen
 [`Alias`]: https://httpd.apache.org/docs/current/mod/mod_alias.html#alias
 [`AliasMatch`]: https://httpd.apache.org/docs/current/mod/mod_alias.html#aliasmatch
 [aliased servers]: https://httpd.apache.org/docs/current/urlmapping.html
 [`AllowEncodedSlashes`]: https://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes
-[`apache`]: #class-apache
-[`apache_version`]: #apache_version
-[`apache::balancer`]: #defined-type-apachebalancer
-[`apache::balancermember`]: #defined-type-apachebalancermember
-[`apache::fastcgi::server`]: #defined-type-apachefastcgiserver
-[`apache::mod`]: #defined-type-apachemod
-[`apache::mod::<MODULE NAME>`]: #classes-apachemodmodule-name
-[`apache::mod::alias`]: #class-apachemodalias
-[`apache::mod::auth_cas`]: #class-apachemodauth_cas
-[`apache::mod::auth_mellon`]: #class-apachemodauth_mellon
-[`apache::mod::authn_dbd`]: #class-apachemodauthn_dbd
-[`apache::mod::authnz_ldap`]: #class-apachemodauthnz_ldap
-[`apache::mod::cluster`]: #class-apachemodcluster
-[`apache::mod::data]: #class-apachemoddata
-[`apache::mod::disk_cache`]: #class-apachemoddisk_cache
-[`apache::mod::dumpio`]: #class-apachemoddumpio
-[`apache::mod::event`]: #class-apachemodevent
-[`apache::mod::ext_filter`]: #class-apachemodext_filter
-[`apache::mod::geoip`]: #class-apachemodgeoip
-[`apache::mod::http2`]: #class-apachemodhttp2
-[`apache::mod::itk`]: #class-apachemoditk
-[`apache::mod::jk`]: #class-apachemodjk
-[`apache::mod::ldap`]: #class-apachemodldap
-[`apache::mod::passenger`]: #class-apachemodpassenger
-[`apache::mod::peruser`]: #class-apachemodperuser
-[`apache::mod::prefork`]: #class-apachemodprefork
-[`apache::mod::proxy`]: #class-apachemodproxy
-[`apache::mod::proxy_balancer`]: #class-apachemodproxybalancer
-[`apache::mod::proxy_fcgi`]: #class-apachemodproxy_fcgi
-[`apache::mod::proxy_html`]: #class-apachemodproxy_html
-[`apache::mod::python`]: #class-apachemodpython
-[`apache::mod::security`]: #class-apachemodsecurity
-[`apache::mod::shib`]: #class-apachemodshib
-[`apache::mod::ssl`]: #class-apachemodssl
-[`apache::mod::status`]: #class-apachemodstatus
-[`apache::mod::userdir`]: #class-apachemoduserdir
-[`apache::mod::worker`]: #class-apachemodworker
-[`apache::mod::wsgi`]: #class-apachemodwsgi
-[`apache::params`]: #class-apacheparams
-[`apache::version`]: #class-apacheversion
-[`apache::vhost`]: #defined-type-apachevhost
-[`apache::vhost::custom`]: #defined-type-apachevhostcustom
-[`apache::vhost::WSGIImportScript`]: #wsgiimportscript
+[`apache`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apache
+[`apache::balancer`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachebalancer
+[`apache::balancermember`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachebalancermember
+[`apache::mod`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemod
+[`apache::mod::<MODULE NAME>`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#public-classes
+[`apache::mod::alias`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodalias
+[`apache::mod::auth_cas`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodauth_cas
+[`apache::mod::auth_mellon`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodauth_mellon
+[`apache::mod::authn_dbd`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodauthn_dbd
+[`apache::mod::authnz_ldap`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodauthnz_ldap
+[`apache::mod::cluster`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodcluster
+[`apache::mod::data]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemoddata
+[`apache::mod::disk_cache`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemoddisk_cache
+[`apache::mod::dumpio`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemoddumpio
+[`apache::mod::event`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodevent
+[`apache::mod::ext_filter`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodext_filter
+[`apache::mod::geoip`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodgeoip
+[`apache::mod::http2`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodhttp2
+[`apache::mod::itk`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemoditk
+[`apache::mod::jk`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodjk
+[`apache::mod::ldap`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodldap
+[`apache::mod::passenger`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodpassenger
+[`apache::mod::peruser`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodperuser
+[`apache::mod::prefork`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodprefork
+[`apache::mod::proxy`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodproxy
+[`apache::mod::proxy_balancer`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodproxybalancer
+[`apache::mod::proxy_fcgi`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodproxy_fcgi
+[`apache::mod::proxy_html`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodproxy_html
+[`apache::mod::python`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodpython
+[`apache::mod::security`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodsecurity
+[`apache::mod::shib`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodshib
+[`apache::mod::ssl`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodssl
+[`apache::mod::status`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodstatus
+[`apache::mod::userdir`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemoduserdir
+[`apache::mod::worker`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodworker
+[`apache::mod::wsgi`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachemodwsgi
+[`apache::params`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#private-classes
+[`apache::version`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#private-classes
+[`apache::vhost`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachevhost
+[`apache::vhost::custom`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachevhostcustom
 [Apache HTTP Server]: https://httpd.apache.org
 [Apache modules]: https://httpd.apache.org/docs/current/mod/
-[array]: https://docs.puppet.com/puppet/latest/reference/lang_data_array.html
+[array]: https://docs.puppet.com/puppet/latest/lang_data_array.html
 
 [audit log]: https://github.com/SpiderLabs/ModSecurity/wiki/ModSecurity-2-Data-Formats#audit-log
 
@@ -85,79 +80,72 @@
 [certificate revocation list]: https://httpd.apache.org/docs/current/mod/mod_ssl.html#sslcarevocationfile
 [certificate revocation list path]: https://httpd.apache.org/docs/current/mod/mod_ssl.html#sslcarevocationpath
 [common gateway interface]: https://httpd.apache.org/docs/current/howto/cgi.html
-[`confd_dir`]: #confd_dir
-[`content`]: #content
-[CONTRIBUTING.md]: CONTRIBUTING.md
+[`conf_dir`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#conf_dir
 [custom error documents]: https://httpd.apache.org/docs/current/custom-error.html
-[`custom_fragment`]: #custom_fragment
+[`custom_fragment`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#custom_fragment
 
-[`default_mods`]: #default_mods
-[`default_ssl_crl`]: #default_ssl_crl
-[`default_ssl_crl_path`]: #default_ssl_crl_path
-[`default_ssl_vhost`]: #default_ssl_vhost
-[`dev_packages`]: #dev_packages
-[`directory`]: #directory
-[`directories`]: #parameter-directories-for-apachevhost
+[`default_mods`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#default_mods
+[`default_ssl_crl`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#default_ssl_crl
+[`default_ssl_crl_path`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#default_ssl_crl_path
+[`default_ssl_vhost`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#default_ssl_vhost
+[`dev_packages`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#dev_packages
+[`directories`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#directories
 [`DirectoryIndex`]: https://httpd.apache.org/docs/current/mod/mod_dir.html#directoryindex
-[`docroot`]: #docroot
-[`docroot_owner`]: #docroot_owner
-[`docroot_group`]: #docroot_group
+[`docroot`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#docroot
+[`docroot_owner`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#docroot_owner
+[`docroot_group`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#docroot_group
 [`DocumentRoot`]: https://httpd.apache.org/docs/current/mod/core.html#documentroot
 
 [`EnableSendfile`]: https://httpd.apache.org/docs/current/mod/core.html#enablesendfile
 [enforcing mode]: http://selinuxproject.org/page/Guide/Mode
 [`ensure`]: https://docs.puppet.com/latest/type.html#package-attribute-ensure
-[`error_log_file`]: #error_log_file
-[`error_log_syslog`]: #error_log_syslog
-[`error_log_pipe`]: #error_log_pipe
+[`error_log_file`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#error_log_file
+[`error_log_syslog`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#error_log_syslog
+[`error_log_pipe`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#error_log_pipe
 [`ExpiresByType`]: https://httpd.apache.org/docs/current/mod/mod_expires.html#expiresbytype
-[exported resources]: http://docs.puppet.com/latest/reference/lang_exported.md
+[exported resources]: https://puppet.com/docs/puppet/latest/lang_exported.html
 [`ExtendedStatus`]: https://httpd.apache.org/docs/current/mod/core.html#extendedstatus
 
 [Facter]: http://docs.puppet.com/facter/
-[FastCGI]: http://www.fastcgi.com/
 [FallbackResource]: https://httpd.apache.org/docs/current/mod/mod_dir.html#fallbackresource
-[`fallbackresource`]: #fallbackresource
+[`fallbackresource`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#fallbackresource
 [`FileETag`]: https://httpd.apache.org/docs/current/mod/core.html#fileetag
 [filter rules]: https://httpd.apache.org/docs/current/filter.html
-[`filters`]: #filters
+[`filters`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#filters
 [`ForceType`]: https://httpd.apache.org/docs/current/mod/core.html#forcetype
 
 [GeoIPScanProxyHeaders]: http://dev.maxmind.com/geoip/legacy/mod_geoip2/#Proxy-Related_Directives
 [`gentoo/puppet-portage`]: https://github.com/gentoo/puppet-portage
 
-[Hash]: https://docs.puppet.com/puppet/latest/reference/lang_data_hash.html
+[Hash]: https://docs.puppet.com/puppet/latest/lang_data_hash.html
 [`HttpProtocolOptions`]: http://httpd.apache.org/docs/current/mod/core.html#httpprotocoloptions
 
+[CAT Team]: https://puppetlabs.github.io/content-and-tooling-team/
 [`IncludeOptional`]: https://httpd.apache.org/docs/current/mod/core.html#includeoptional
 [`Include`]: https://httpd.apache.org/docs/current/mod/core.html#include
 [interval syntax]: https://httpd.apache.org/docs/current/mod/mod_expires.html#AltSyn
-[`ip`]: #ip
-[`ip_based`]: #ip_based
+[`ip`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#ip
+[`ip_based`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#ip_based
 [IP-based virtual hosts]: https://httpd.apache.org/docs/current/vhosts/ip-based.html
 
-[`KeepAlive`]: https://httpd.apache.org/docs/current/mod/core.html#keepalive
-[`KeepAliveTimeout`]: https://httpd.apache.org/docs/current/mod/core.html#keepalivetimeout
-[`keepalive` parameter]: #keepalive
-[`keepalive_timeout`]: #keepalive_timeout
 [`limitreqfieldsize`]: https://httpd.apache.org/docs/current/mod/core.html#limitrequestfieldsize
 [`limitreqfields`]: http://httpd.apache.org/docs/current/mod/core.html#limitrequestfields
 
-[`lib`]: #lib
-[`lib_path`]: #lib_path
+[`lib`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#lib
+[`lib_path`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#lib_path
 [`Listen`]: https://httpd.apache.org/docs/current/bind.html
 [`ListenBackLog`]: https://httpd.apache.org/docs/current/mod/mpm_common.html#listenbacklog
 [`LoadFile`]: https://httpd.apache.org/docs/current/mod/mod_so.html#loadfile
 [`LogFormat`]: https://httpd.apache.org/docs/current/mod/mod_log_config.html#logformat
-[`logroot`]: #logroot
+[`logroot`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#logroot
 [Log security]: https://httpd.apache.org/docs/current/logs.html#security
 
-[`manage_docroot`]: #manage_docroot
-[`manage_user`]: #manage_user
-[`manage_group`]: #manage_group
-[`supplementary_groups`]: #supplementary_groups
+[`manage_docroot`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#manage_docroot
+[`manage_user`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#manage_user
+[`manage_group`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#manage_group
+[`supplementary_groups`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#supplementary_groups
 [`MaxConnectionsPerChild`]: https://httpd.apache.org/docs/current/mod/mpm_common.html#maxconnectionsperchild
-[`max_keepalive_requests`]: #max_keepalive_requests
+[`max_keepalive_requests`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#max_keepalive_requests
 [`MaxRequestWorkers`]: https://httpd.apache.org/docs/current/mod/mpm_common.html#maxrequestworkers
 [`MaxSpareThreads`]: https://httpd.apache.org/docs/current/mod/mpm_common.html#maxsparethreads
 [MIME `content-type`]: https://www.iana.org/assignments/media-types/media-types.xhtml
@@ -196,65 +184,60 @@
 [`mod_version`]: https://httpd.apache.org/docs/current/mod/mod_version.html
 [`mod_wsgi`]: https://modwsgi.readthedocs.org/en/latest/
 [module contribution guide]: https://docs.puppet.com/forge/contributing.html
-[`mpm_module`]: #mpm_module
+[`mpm_module`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#mpm_module
 [multi-processing module]: https://httpd.apache.org/docs/current/mpm.html
 
 [name-based virtual hosts]: https://httpd.apache.org/docs/current/vhosts/name-based.html
-[`no_proxy_uris`]: #no_proxy_uris
+[`no_proxy_uris`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#no_proxy_uris
 
 [open source Puppet]: https://docs.puppet.com/puppet/
 [`Options`]: https://httpd.apache.org/docs/current/mod/core.html#options
 
-[`path`]: #path
+[`path`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#path
 [`Peruser`]: https://www.freebsd.org/cgi/url.cgi?ports/www/apache22-peruser-mpm/pkg-descr
-[`port`]: #port
-[`priority`]: #defined-types-apachevhost
-[`proxy_dest`]: #proxy_dest
-[`proxy_dest_match`]: #proxy_dest_match
-[`proxy_pass`]: #proxy_pass
+[`port`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#port-3
+[`priority`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#priority
+[`proxy_dest`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#proxy_dest
+[`proxy_dest_match`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#proxy_dest_match
+[`proxy_pass`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#proxy_pass
 [`ProxyPass`]: https://httpd.apache.org/docs/current/mod/mod_proxy.html#proxypass
-[`ProxySet`]: https://httpd.apache.org/docs/current/mod/mod_proxy.html#proxyset
+[`proxy_set`]: https://httpd.apache.org/docs/current/mod/mod_proxy.html#proxyset
 [Puppet Enterprise]: https://docs.puppet.com/pe/
 [Puppet Forge]: https://forge.puppet.com
 [Puppet]: https://puppet.com
-[Puppet module]: https://docs.puppet.com/puppet/latest/reference/modules_fundamentals.html
-[Puppet module's code]: https://github.com/puppetlabs/puppetlabs-apache/blob/master/manifests/default_mods.pp
-[`purge_configs`]: #purge_configs
-[`purge_vhost_dir`]: #purge_vhost_dir
+[Puppet module]: https://docs.puppet.com/puppet/latest/modules_fundamentals.html
+[Puppet module's code]: https://github.com/puppetlabs/puppetlabs-apache/blob/main/manifests/default_mods.pp
+[`purge_configs`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#purge_configs
+[`purge_vhost_dir`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#purge_vhost_dir
 [Python]: https://www.python.org/
 
 [Rack]: http://rack.github.io/
-[`rack_base_uris`]: #rack_base_uris
+[`rack_base_uri`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#rack_base_uri
 [RFC 2616]: https://www.ietf.org/rfc/rfc2616.txt
 [`RequestReadTimeout`]: https://httpd.apache.org/docs/current/mod/mod_reqtimeout.html#requestreadtimeout
 [rspec-puppet]: http://rspec-puppet.com/
 
 [`ScriptAlias`]: https://httpd.apache.org/docs/current/mod/mod_alias.html#scriptalias
 [`ScriptAliasMatch`]: https://httpd.apache.org/docs/current/mod/mod_alias.html#scriptaliasmatch
-[`scriptalias`]: #scriptalias
+[`scriptalias`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#scriptalias
 [SELinux]: http://selinuxproject.org/
 [`ServerAdmin`]: https://httpd.apache.org/docs/current/mod/core.html#serveradmin
-[`serveraliases`]: #serveraliases
+[`serveraliases`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#serveraliases
 [`ServerLimit`]: https://httpd.apache.org/docs/current/mod/mpm_common.html#serverlimit
 [`ServerName`]: https://httpd.apache.org/docs/current/mod/core.html#servername
 [`ServerRoot`]: https://httpd.apache.org/docs/current/mod/core.html#serverroot
 [`ServerTokens`]: https://httpd.apache.org/docs/current/mod/core.html#servertokens
 [`ServerSignature`]: https://httpd.apache.org/docs/current/mod/core.html#serversignature
 [Service attribute restart]: http://docs.puppet.com/latest/type.html#service-attribute-restart
-[`source`]: #source
 [`SSLCARevocationCheck`]: https://httpd.apache.org/docs/current/mod/mod_ssl.html#sslcarevocationcheck
 [SSL certificate key file]: https://httpd.apache.org/docs/current/mod/mod_ssl.html#sslcertificatekeyfile
 [SSL chain]: https://httpd.apache.org/docs/current/mod/mod_ssl.html#sslcertificatechainfile
 [SSL encryption]: https://httpd.apache.org/docs/current/ssl/index.html
-[`ssl`]: #ssl
-[`ssl_cert`]: #ssl_cert
-[`ssl_compression`]: #ssl_compression
-[`ssl_key`]: #ssl_key
+[`ssl`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#ssl
+[`ssl_cert`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#ssl_cert
+[`ssl_compression`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#ssl_compression
+[`ssl_key`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#ssl_key
 [`StartServers`]: https://httpd.apache.org/docs/current/mod/mpm_common.html#startservers
-[suPHP]: http://www.suphp.org/Home.html
-[`suphp_addhandler`]: #suphp_addhandler
-[`suphp_configpath`]: #suphp_configpath
-[`suphp_engine`]: #suphp_engine
 [supported operating system]: https://forge.puppet.com/supported#puppet-supported-modules-compatibility-matrix
 
 [`ThreadLimit`]: https://httpd.apache.org/docs/current/mod/mpm_common.html#threadlimit
@@ -265,10 +248,10 @@
 
 [`UseCanonicalName`]: https://httpd.apache.org/docs/current/mod/core.html#usecanonicalname
 
-[`verify_config`]: #verify_config
-[`vhost`]: #defined-type-apachevhost
-[`vhost_dir`]: #vhost_dir
-[`virtual_docroot`]: #virtual_docroot
+[`verify_config`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#verify_config
+[`vhost`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#apachevhost
+[`vhost_dir`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#vhost_dir
+[`virtual_docroot`]: https://forge.puppet.com/modules/puppetlabs/apache/reference#virtual_docroot
 
 [Web Server Gateway Interface]: https://www.python.org/dev/peps/pep-3333/#abstract
 [`WSGIRestrictEmbedded`]: http://modwsgi.readthedocs.io/en/develop/configuration-directives/WSGIRestrictEmbedded.html
@@ -285,13 +268,11 @@
     - [Beginning with Apache - Installation][Beginning with Apache]
 3. [Usage - The classes and defined types available for configuration][Usage]
     - [Configuring virtual hosts - Examples to help get started][Configuring virtual hosts]
-    - [Configuring FastCGI servers to handle PHP files][Configuring FastCGI servers]
     - [Load balancing with exported and non-exported resources][Load balancing examples]
 4. [Reference - An under-the-hood peek at what the module is doing and how][Reference]
 5. [Limitations - OS compatibility, etc.][Limitations]
 6. [Development - Guide for contributing to the module][Development]
-    - [Contributing to the apache module][Contributing]
-    
+
 <a id="module-description"></a>
 ## Module description
 
@@ -328,9 +309,9 @@ class { 'apache': }
 
 When you declare this class with the default options, the module:
 
-- Installs the appropriate Apache software package and [required Apache modules](#default_mods) for your operating system.
-- Places the required configuration files in a directory, with the [default location](#conf_dir) Depends on operating system.
-- Configures the server with a default virtual host and standard port ('80') and address ('\*') bindings.
+- Installs the appropriate Apache software package and [required Apache modules][`default_mods`] for your operating system.
+- Places the required configuration files in a directory, with the [default location][`conf_dir`] Depends on operating system.
+- Configures the server with a default virtual host and standard port (80) and address ('\*') bindings.
 - Creates a document root directory Depends on operating system, typically `/var/www`.
 - Starts the Apache service.
 
@@ -359,7 +340,7 @@ To configure basic [name-based virtual hosts][], specify the [`port`][] and [`do
 
 ``` puppet
 apache::vhost { 'vhost.example.com':
-  port    => '80',
+  port    => 80,
   docroot => '/var/www/vhost',
 }
 ```
@@ -372,7 +353,7 @@ To configure user and group ownership for `docroot`, use the [`docroot_owner`][]
 
 ``` puppet
 apache::vhost { 'user.example.com':
-  port          => '80',
+  port          => 80,
   docroot       => '/var/www/user',
   docroot_owner => 'www-data',
   docroot_group => 'www-data',
@@ -381,11 +362,11 @@ apache::vhost { 'user.example.com':
 
 #### Configuring virtual hosts with SSL
 
-To configure a virtual host to use [SSL encryption][] and default SSL certificates, set the [`ssl`][] parameter. You must also specify the [`port`][] parameter, typically with a value of '443', to accommodate HTTPS requests:
+To configure a virtual host to use [SSL encryption][] and default SSL certificates, set the [`ssl`][] parameter. You must also specify the [`port`][] parameter, typically with a value of 443, to accommodate HTTPS requests:
 
 ``` puppet
 apache::vhost { 'ssl.example.com':
-  port    => '443',
+  port    => 443,
   docroot => '/var/www/ssl',
   ssl     => true,
 }
@@ -395,7 +376,7 @@ To configure a virtual host to use SSL and specific SSL certificates, use the pa
 
 ``` puppet
 apache::vhost { 'cert.example.com':
-  port     => '443',
+  port     => 443,
   docroot  => '/var/www/cert',
   ssl      => true,
   ssl_cert => '/etc/ssl/fourth.example.com.cert',
@@ -409,14 +390,14 @@ To configure a mix of SSL and unencrypted virtual hosts at the same domain, decl
 # The non-ssl virtual host
 apache::vhost { 'mix.example.com non-ssl':
   servername => 'mix.example.com',
-  port       => '80',
+  port       => 80,
   docroot    => '/var/www/mix',
 }
 
 # The SSL virtual host at the same domain
 apache::vhost { 'mix.example.com ssl':
   servername => 'mix.example.com',
-  port       => '443',
+  port       => 443,
   docroot    => '/var/www/mix',
   ssl        => true,
 }
@@ -427,7 +408,7 @@ To configure a virtual host to redirect unencrypted connections to SSL, declare 
 ``` puppet
 apache::vhost { 'redirect.example.com non-ssl':
   servername      => 'redirect.example.com',
-  port            => '80',
+  port            => 80,
   docroot         => '/var/www/redirect',
   redirect_status => 'permanent',
   redirect_dest   => 'https://redirect.example.com/'
@@ -435,7 +416,7 @@ apache::vhost { 'redirect.example.com non-ssl':
 
 apache::vhost { 'redirect.example.com ssl':
   servername => 'redirect.example.com',
-  port       => '443',
+  port       => 443,
   docroot    => '/var/www/redirect',
   ssl        => true,
 }
@@ -448,7 +429,7 @@ Virtual hosts listen on all IP addresses ('\*') by default. To configure the vir
 ``` puppet
 apache::vhost { 'ip.example.com':
   ip      => '127.0.0.1',
-  port    => '80',
+  port    => 80,
   docroot => '/var/www/ip',
 }
 ```
@@ -458,7 +439,7 @@ You can also configure more than one IP address per virtual host by using an arr
 ``` puppet
 apache::vhost { 'ip.example.com':
   ip      => ['127.0.0.1','169.254.1.1'],
-  port    => '80',
+  port    => 80,
   docroot => '/var/www/ip',
 }
 ```
@@ -468,7 +449,7 @@ You can configure multiple ports per virtual host by using an array of ports for
 ``` puppet
 apache::vhost { 'ip.example.com':
   ip      => ['127.0.0.1'],
-  port    => ['80','8080']
+  port    => [80, 8080]
   docroot => '/var/www/ip',
 }
 ```
@@ -481,7 +462,7 @@ apache::vhost { 'aliases.example.com':
     'aliases.example.org',
     'aliases.example.net',
   ],
-  port          => '80',
+  port          => 80,
   docroot       => '/var/www/aliases',
 }
 ```
@@ -491,7 +472,7 @@ To set up a virtual host with a wildcard alias for the subdomain mapped to a dir
 ``` puppet
 apache::vhost { 'subdomain.loc':
   vhost_name      => '*',
-  port            => '80',
+  port            => 80,
   virtual_docroot => '/var/www/%-2+',
   docroot         => '/var/www',
   serveraliases   => ['*.loc',],
@@ -502,7 +483,7 @@ To configure a virtual host with [filter rules][], pass the filter directives as
 
 ``` puppet
 apache::vhost { 'subdomain.loc':
-  port    => '80',
+  port    => 80,
   filters => [
     'FilterDeclare  COMPRESS',
     'FilterProvider COMPRESS DEFLATE resp=Content-Type $text/html',
@@ -515,44 +496,17 @@ apache::vhost { 'subdomain.loc':
 
 #### Configuring virtual hosts for apps and processors
 
-To set up a virtual host with [suPHP][], use the following parameters:
-
-* [`suphp_engine`][], to enable the suPHP engine.
-* [`suphp_addhandler`][], to define a MIME type.
-* [`suphp_configpath`][], to set which path suPHP passes to the PHP interpreter.
-* [`directory`][], to configure Directory, File, and Location directive blocks.
-
-For example:
-
-``` puppet
-apache::vhost { 'suphp.example.com':
-  port             => '80',
-  docroot          => '/home/appuser/myphpapp',
-  suphp_addhandler => 'x-httpd-php',
-  suphp_engine     => 'on',
-  suphp_configpath => '/etc/php5/apache2',
-  directories      => [
-    { 'path'  => '/home/appuser/myphpapp',
-      'suphp' => {
-        user  => 'myappuser',
-        group => 'myappgroup',
-      },
-    },
-  ],
-}
-```
-
 To configure a virtual host to use the [Web Server Gateway Interface][] (WSGI) for [Python][] applications, use the `wsgi` set of parameters:
 
 ``` puppet
 apache::vhost { 'wsgi.example.com':
-  port                        => '80',
+  port                        => 80,
   docroot                     => '/var/www/pythonapp',
   wsgi_application_group      => '%{GLOBAL}',
   wsgi_daemon_process         => 'wsgi',
   wsgi_daemon_process_options => {
-    processes    => '2',
-    threads      => '15',
+    processes    => 2,
+    threads      => 15,
     display-name => '%{GROUP}',
   },
   wsgi_import_script          => '/var/www/demo.wsgi',
@@ -569,7 +523,7 @@ As of Apache 2.2.16, Apache supports [FallbackResource][], a simple replacement 
 
 ``` puppet
 apache::vhost { 'wordpress.example.com':
-  port             => '80',
+  port             => 80,
   docroot          => '/var/www/wordpress',
   fallbackresource => '/index.php',
 }
@@ -581,19 +535,19 @@ To configure a virtual host with a designated directory for [Common Gateway Inte
 
 ``` puppet
 apache::vhost { 'cgi.example.com':
-  port        => '80',
+  port        => 80,
   docroot     => '/var/www/cgi',
   scriptalias => '/usr/lib/cgi-bin',
 }
 ```
 
-To configure a virtual host for [Rack][], use the [`rack_base_uris`][] parameter:
+To configure a virtual host for [Rack][], use the [`rack_base_uri`][] parameter:
 
 ``` puppet
 apache::vhost { 'rack.example.com':
-  port           => '80',
+  port           => 80,
   docroot        => '/var/www/rack',
-  rack_base_uris => ['/rackapp1', '/rackapp2'],
+  rack_base_uri => ['/rackapp1', '/rackapp2'],
 }
 ```
 
@@ -631,7 +585,7 @@ In this example, we add two IP-based virtual hosts on an IP address (in this exa
 apache::vhost { 'The first IP-based virtual host, non-ssl':
   servername => 'first.example.com',
   ip         => '10.0.0.10',
-  port       => '80',
+  port       => 80,
   ip_based   => true,
   docroot    => '/var/www/first',
 }
@@ -639,7 +593,7 @@ apache::vhost { 'The first IP-based virtual host, non-ssl':
 apache::vhost { 'The first IP-based vhost, ssl':
   servername => 'first.example.com',
   ip         => '10.0.0.10',
-  port       => '443',
+  port       => 443,
   ip_based   => true,
   docroot    => '/var/www/first-ssl',
   ssl        => true,
@@ -651,13 +605,13 @@ Next, we add two name-based virtual hosts listening on a second IP address (10.0
 ``` puppet
 apache::vhost { 'second.example.com':
   ip      => '10.0.0.20',
-  port    => '80',
+  port    => 80,
   docroot => '/var/www/second',
 }
 
 apache::vhost { 'third.example.com':
   ip      => '10.0.0.20',
-  port    => '80',
+  port    => 80,
   docroot => '/var/www/third',
 }
 ```
@@ -666,13 +620,13 @@ To add name-based virtual hosts that answer on either 10.0.0.10 or 10.0.0.20, yo
 
 ``` puppet
 apache::vhost { 'fourth.example.com':
-  port       => '80',
+  port       => 80,
   docroot    => '/var/www/fourth',
   add_listen => false,
 }
 
 apache::vhost { 'fifth.example.com':
-  port       => '80',
+  port       => 80,
   docroot    => '/var/www/fifth',
   add_listen => false,
 }
@@ -717,55 +671,7 @@ apache::mod { 'mod_authnz_external': }
 
 There are several optional parameters you can specify when defining Apache modules this way. See the [defined type's reference][`apache::mod`] for details.
 
-<a id="configuring-fastcgi-servers-to-handle-php-files"></a>
-### Configuring FastCGI servers to handle PHP files
-
-#### FastCGI on Ubuntu 18.04
-
-On Ubuntu 18.04, `mod_fastcgi` is no longer supported. So considering:
-
-* an Apache Vhost with docroot set to `/var/www/html`
-* a FastCGI server listening on `127.0.0.1:9000`
-
-you can then use the [`custom_fragment`][] parameter to configure the virtual host to have the FastCGI server handle the specified file type:
-
-``` puppet
-apache::vhost { 'www':
-  ...
-  docroot         => '/var/www/html/',
-  custom_fragment => 'ProxyPassMatch ^/(.*\.php)$ fcgi://127.0.0.1:9000/var/www/html/$1',
-  ...
-}
-```
-
-Please note you have to adjust the second ProxyPassMatch parameter to you docroot value (here `/var/www/html/`).
-
-#### Other OSes
-
-Add the [`apache::fastcgi::server`][] defined type to allow [FastCGI][] servers to handle requests for specific files. For example, the following defines a FastCGI server at 127.0.0.1 (localhost) on port 9000 to handle PHP requests:
-
-``` puppet
-apache::fastcgi::server { 'php':
-  host       => '127.0.0.1:9000',
-  timeout    => 15,
-  flush      => false,
-  faux_path  => '/var/www/php.fcgi',
-  fcgi_alias => '/php.fcgi',
-  file_type  => 'application/x-httpd-php'
-}
-```
-
-You can then use the [`custom_fragment`][] parameter to configure the virtual host to have the FastCGI server handle the specified file type:
-
-``` puppet
-apache::vhost { 'www':
-  ...
-  custom_fragment => 'AddType application/x-httpd-php .php'
-  ...
-}
-```
-
-<a id="load-balancing-examples"></a> 
+<a id="load-balancing-examples"></a>
 ### Load balancing examples
 
 Apache supports load balancing across groups of servers through the [`mod_proxy`][] Apache module. Puppet supports configuring Apache load balancing groups (also known as balancer clusters) through the [`apache::balancer`][] and [`apache::balancermember`][] defined types.
@@ -813,10 +719,10 @@ apache::balancer { 'puppet01':
 
 Load balancing scheduler algorithms (`lbmethod`) are listed [in mod_proxy_balancer documentation](https://httpd.apache.org/docs/current/mod/mod_proxy_balancer.html).
 
-<a id="reference"></a> 
+<a id="reference"></a>
 ## Reference
 
-For information on classes, types and functions see the [REFERENCE.md](https://github.com/puppetlabs/puppetlabs-apache/blob/master/REFERENCE.md)
+For information on classes, types and functions see the [REFERENCE.md](https://github.com/puppetlabs/puppetlabs-apache/blob/main/REFERENCE.md)
 
 ### Templates
 
@@ -829,7 +735,7 @@ The Apache module has a task that allows a user to reload the Apache config with
 <a id="limitations"></a>
 ## Limitations
 
-For an extensive list of supported operating systems, see [metadata.json](https://github.com/puppetlabs/puppetlabs-apache/blob/master/metadata.json)
+For an extensive list of supported operating systems, see [metadata.json](https://github.com/puppetlabs/puppetlabs-apache/blob/main/metadata.json)
 
 ### FreeBSD
 
@@ -840,6 +746,7 @@ In order to use this module on FreeBSD, you _must_ use apache24-2.4.12 (www/apac
 On Gentoo, this module depends on the [`gentoo/puppet-portage`][] Puppet module. Although several options apply or enable certain features and settings for Gentoo, it is not a [supported operating system][] for this module.
 
 ### RHEL/CentOS
+
 The [`apache::mod::auth_cas`][], [`apache::mod::passenger`][], [`apache::mod::proxy_html`][] and [`apache::mod::shib`][] classes are not functional on RH/CentOS without providing dependency packages from extra repositories.
 
 See their respective documentation below for related repositories and packages.
@@ -850,11 +757,11 @@ The [`apache::mod::passenger`][] and [`apache::mod::proxy_html`][] classes are u
 
 #### RHEL/CentOS 6
 
-The [`apache::mod::passenger`][] class is not installing, because the the EL6 repository is missing compatible packages.
+The [`apache::mod::passenger`][] class is not installing, because the EL6 repository is missing compatible packages.
 
 #### RHEL/CentOS 7
 
-The [`apache::mod::passenger`][] and [`apache::mod::proxy_html`][] classes are untested because the EL7 repository is missing compatible packages, which also blocks us from testing the [`apache::vhost`][] defined type's [`rack_base_uris`][] parameter.
+The [`apache::mod::passenger`][] and [`apache::mod::proxy_html`][] classes are untested because the EL7 repository is missing compatible packages, which also blocks us from testing the [`apache::vhost`][] defined type's [`rack_base_uri`][] parameter.
 
 ### SELinux and custom paths
 
@@ -901,16 +808,12 @@ apache::vhost { 'test.server':
 }
 ```
 
+**NOTE:** On RHEL 8, the SELinux packages contained in `policycoreutils-python` have been replaced by the `policycoreutils-python-utils` package.
+See [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/considerations_in_adopting_rhel_8/index#selinux-python3_security) for more details.
+
 You must set the contexts using `semanage fcontext` instead of `chcon` because Puppet's `file` resources reset the values' context in the database if the resource doesn't specify it.
 
-### Ubuntu 10.04
-
-The [`apache::vhost::WSGIImportScript`][] parameter creates a statement inside the virtual host that is unsupported on older versions of Apache, causing it to fail. This will be remedied in a future refactoring.
-
-### Ubuntu 16.04
-The [`apache::mod::suphp`][] class is untested since repositories are missing compatible packages.
-
-<a id="development"></a> 
+<a id="development"></a>
 ## Development
 
 ### Testing
@@ -933,12 +836,12 @@ To check the code coverage, run:
 COVERAGE=yes bundle exec rake parallel_spec
 ```
 
-## Development
+
 
 Acceptance tests for this module leverage [puppet_litmus](https://github.com/puppetlabs/puppet_litmus).
-To run the acceptance tests follow the instructions [here](https://github.com/puppetlabs/puppet_litmus/wiki/Tutorial:-use-Litmus-to-execute-acceptance-tests-with-a-sample-module-(MoTD)#install-the-necessary-gems-for-the-module).
-You can also find a tutorial and walkthrough of using Litmus and the PDK on [YouTube](https://www.youtube.com/watch?v=FYfR7ZEGHoE).
+To run the acceptance tests follow the instructions [here](https://puppetlabs.github.io/litmus/Running-acceptance-tests.html). You can also find a tutorial and walkthrough of using Litmus and the PDK on [YouTube](https://www.youtube.com/watch?v=FYfR7ZEGHoE).
 
+### Development Support
 If you run into an issue with this module, or if you would like to request a feature, please [file a ticket](https://tickets.puppetlabs.com/browse/MODULES/).
 Every Monday the Puppet IA Content Team has [office hours](https://puppet.com/community/office-hours) in the [Puppet Community Slack](http://slack.puppet.com/), alternating between an EMEA friendly time (1300 UTC) and an Americas friendly time (0900 Pacific, 1700 UTC).
 
@@ -950,3 +853,57 @@ If you submit a change to this module, be sure to regenerate the reference docum
 puppet strings generate --format markdown --out REFERENCE.md
 ```
 
+### Apache MOD Test & Support Lifecycle
+#### Adding Support for a new Apache MOD
+Support for new [Apache Modules] can be added under the [`apache::mod`] namespace.
+Acceptance tests should be added for each new [Apache Module][Apache Modules] added.
+Ideally, the acceptance tests should run on all compatible platforms that this module is supported on (see `metdata.json`), however there are cases when a more niche module is difficult to set up and install on a particular Linux distro.
+This could be for one or more of the following reasons:
+- Package not available in default repositories of distro
+- Package dependencies not available in default repositories of distro
+- Package (and/or its dependencies) are only available in a specific version of an OS
+
+In these cases, it is possible to exclude a module from a test platform using a specific tag, defined above the class declaration:
+```puppet
+# @note Unsupported platforms: OS: ver, ver; OS: ver, ver, ver; OS: all
+class apache::mod::foobar {
+...
+}
+```
+For example:
+```puppet
+# @note Unsupported platforms: RedHat: 5, 6; Ubuntu: 14.04; SLES: all; Scientific: 11 SP1
+class apache::mod::actions {
+...
+}
+```
+Please be aware of the following format guidelines for the tag:
+- All OS/Version declarations must be preceded with `@note Unsupported platforms:`
+- The tag must be declared ABOVE the class declaration (i.e. not as footer at the bottom of the file)
+- Each OS/Version declaration must be separated by semicolons (`;`)
+- Each version must be separated by a comma (`,`)
+- Versions CANNOT be declared in ranges (e.g. `RedHat:5-7`), they should be explicitly declared (e.g. `RedHat:5,6,7`)
+- However, to declare all versions of an OS as unsupported, use the word `all` (e.g. `SLES:all`)
+- OSs with word characters as part of their versions are acceptable (e.g. `Scientific: 11 SP1, 11 SP2, 12, 13`)
+- Spaces are permitted between OS/Version declarations and version numbers within a declaration
+- Refer to the `operatingsystem_support` values in the `metadata.json` to find the acceptable OS name and version syntax:
+  - E.g. `OracleLinux` OR `oraclelinux`, not: `Oracle` or `OraLinux`
+  - E.g. `RedHat` OR `redhat`, not: `Red Hat Enterprise Linux`, `RHEL`, or `Red Hat`
+
+If the tag is incorrectly formatted, a warning will be printed out at the end of the test run, indicating what tag(s) could not be parsed.
+This will not halt the execution of other tests.
+
+Once the class is tagged, it is possible to exclude a test for that particular [Apache MOD][Apache Modules] using RSpec's filtering and a helper method:
+```ruby
+describe 'auth_oidc', if: mod_supported_on_platform('apache::mod::auth_openidc') do
+```
+The `mod_supported_on_platform` helper method takes the [Apache Module][Apache Modules] class definition as defined in the manifests under `manifest/mod`.
+
+This functionality can be disabled by setting the `DISABLE_MOD_TEST_EXCLUSION` environment variable.
+When set, all exclusions will be ignored.
+#### Test Support Lifecycle
+The puppetlabs-apache module supports a large number of compatible platforms and [Apache Modules][Apache modules].
+As a result, Apache Module tests can fail because a package or package dependency has been removed from a Linux distribution repository.
+The [CAT Team][CAT Team] will try to resolve these issues and keep instructions updated, but due to limited resources this won’t always be possible.
+In these cases, we will exclude test(s) from certain platforms.
+As always, we welcome help from our community members, and the CAT(Content & Tooling) team is here to assist and answer questions.

@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 # Helper function for testing the contents of `proxy_balancer.conf`
 def balancer_manager_conf_spec(allow_from, manager_path)
-  expected = "<Location #{manager_path}>\n"\
-             "    SetHandler balancer-manager\n"\
-             "    Require ip #{Array(allow_from).join(' ')}\n"\
+  expected = "<Location #{manager_path}>\n    " \
+             "SetHandler balancer-manager\n    " \
+             "Require ip #{Array(allow_from).join(' ')}\n" \
              "</Location>\n"
   it do
-    is_expected.to contain_file('proxy_balancer.conf').with_content(expected)
+    expect(subject).to contain_file('proxy_balancer.conf').with_content(expected)
   end
 end
 
@@ -22,18 +24,7 @@ describe 'apache::mod::proxy_balancer', type: :class do
 
   context 'default configuration with default parameters' do
     context 'on a Debian OS' do
-      let :facts do
-        {
-          osfamily: 'Debian',
-          operatingsystemrelease: '8',
-          lsbdistcodename: 'jessie',
-          operatingsystem: 'Debian',
-          id: 'root',
-          kernel: 'Linux',
-          path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-          is_pe: false,
-        }
-      end
+      include_examples 'Debian 11'
 
       it { is_expected.to contain_apache__mod('proxy_balancer') }
 
@@ -42,17 +33,7 @@ describe 'apache::mod::proxy_balancer', type: :class do
     end
 
     context 'on a RedHat OS' do
-      let :facts do
-        {
-          osfamily: 'RedHat',
-          operatingsystemrelease: '6',
-          operatingsystem: 'RedHat',
-          id: 'root',
-          kernel: 'Linux',
-          path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-          is_pe: false,
-        }
-      end
+      include_examples 'RedHat 8'
 
       it { is_expected.to contain_apache__mod('proxy_balancer') }
 
@@ -60,24 +41,14 @@ describe 'apache::mod::proxy_balancer', type: :class do
       it { is_expected.not_to contain_file('proxy_balancer.conf symlink') }
     end
   end
+
   context "default configuration with custom parameters $manager => true, $allow_from => ['10.10.10.10','11.11.11.11'], $status_path => '/custom-manager' on a Debian OS" do
-    let :facts do
-      {
-        osfamily: 'Debian',
-        operatingsystemrelease: '8',
-        lsbdistcodename: 'jessie',
-        operatingsystem: 'Debian',
-        id: 'root',
-        kernel: 'Linux',
-        path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-        is_pe: false,
-      }
-    end
+    include_examples 'Debian 11'
     let :params do
       {
         manager: true,
         allow_from: ['10.10.10.10', '11.11.11.11'],
-        manager_path: '/custom-manager',
+        manager_path: '/custom-manager'
       }
     end
 

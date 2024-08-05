@@ -3,19 +3,19 @@
 #
 # @api private
 define apache::peruser::processor (
-  $user,
-  $group,
-  $file = undef,
+  String $user,
+  String $group,
+  Optional[String] $file = undef,
 ) {
   if ! $file {
     $filename = "${name}.conf"
   } else {
     $filename = $file
   }
-  file { "${::apache::mod_dir}/peruser/processors/${filename}":
+  file { "${apache::mod_dir}/peruser/processors/${filename}":
     ensure  => file,
     content => "Processor ${user} ${group}\n",
-    require => File["${::apache::mod_dir}/peruser/processors"],
+    require => File["${apache::mod_dir}/peruser/processors"],
     notify  => Class['apache::service'],
   }
 }

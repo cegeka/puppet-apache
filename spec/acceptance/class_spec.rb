@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper_acceptance'
 apache_hash = apache_settings_hash
 describe 'apache class' do
@@ -8,25 +10,11 @@ describe 'apache class' do
       idempotent_apply(pp)
     end
 
-    describe 'apache_version fact' do
-      let(:result) do
-        apply_manifest('include apache', catch_failures: true)
-        version_check_pp = <<-MANIFEST
-        notice("apache_version = >${apache_version}<")
-        MANIFEST
-        apply_manifest(version_check_pp, catch_failures: true)
-      end
-
-      it {
-        expect(result.stdout).to match(%r{apache_version = >#{apache_hash['version']}.*<})
-      }
-    end
-
     describe package(apache_hash['package_name']) do
       it { is_expected.to be_installed }
     end
 
-    describe service(apache_hash['service_name']), skip: 'FM-8483' do
+    describe service(apache_hash['service_name']) do
       it { is_expected.to be_enabled }
       it { is_expected.to be_running }
     end
@@ -39,30 +27,24 @@ describe 'apache class' do
   context 'custom site/mod dir parameters' do
     let(:pp) do
       <<-MANIFEST
-        if $::osfamily == 'RedHat' and "$::selinux" == "true" {
-          $semanage_package = $::operatingsystemmajrelease ? {
-            '5'     => 'policycoreutils',
-            default => 'policycoreutils-python',
-          }
-
-          package { $semanage_package: ensure => installed }
+        if $facts['os']['family'] == 'RedHat' and $facts['os']['selinux']['enabled'] {
           exec { 'set_apache_defaults':
-            command     => 'semanage fcontext -a -t httpd_sys_content_t "/apache_spec(/.*)?"',
-            path        => '/bin:/usr/bin/:/sbin:/usr/sbin',
-            subscribe   => Package[$semanage_package],
-            refreshonly => true,
+            command => 'semanage fcontext --add -t httpd_config_t "/apache_spec/apache_custom(/.*)?"',
+            unless  => 'semanage fcontext --list | grep /apache_spec/apache_custom | grep httpd_config_t',
+            path    => '/bin:/usr/bin/:/sbin:/usr/sbin',
           }
           exec { 'restorecon_apache':
             command     => 'restorecon -Rv /apache_spec',
             path        => '/bin:/usr/bin/:/sbin:/usr/sbin',
             before      => Service['httpd'],
-            require     => Class['apache'],
+            require     => [File['/apache_spec/apache_custom'], Class['apache']],
             subscribe   => Exec['set_apache_defaults'],
             refreshonly => true,
           }
         }
-        file { '/apache_spec': ensure => directory, }
-        file { '/apache_spec/apache_custom': ensure => directory, }
+        file { ['/apache_spec', '/apache_spec/apache_custom']:
+          ensure => directory,
+        }
         class { 'apache':
           mod_dir   => '/apache_spec/apache_custom/mods',
           vhost_dir => '/apache_spec/apache_custom/vhosts',
@@ -74,7 +56,7 @@ describe 'apache class' do
       idempotent_apply(pp)
     end
 
-    describe service(apache_hash['service_name']), skip: 'FM-8483' do
+    describe service(apache_hash['service_name']) do
       it { is_expected.to be_enabled }
       it { is_expected.to be_running }
     end

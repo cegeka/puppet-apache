@@ -4,7 +4,7 @@
 # @param transfer_log
 #   Path to `access.log`.
 #
-# @param error_Log
+# @param error_log
 #   Path to `error.log`
 #
 # @param passwd_file
@@ -16,17 +16,17 @@
 # @see https://pagure.io/mod_nss for additional documentation.
 #
 class apache::mod::nss (
-  $transfer_log = "${::apache::params::logroot}/access.log",
-  $error_log    = "${::apache::params::logroot}/error.log",
-  $passwd_file  = undef,
-  $port     = 8443,
+  Stdlib::Absolutepath $transfer_log = "${apache::params::logroot}/access.log",
+  Stdlib::Absolutepath $error_log    = "${apache::params::logroot}/error.log",
+  Optional[String] $passwd_file      = undef,
+  Stdlib::Port $port                 = 8443,
 ) {
-  include ::apache
-  include ::apache::mod::mime
+  include apache
+  include apache::mod::mime
 
   apache::mod { 'nss': }
 
-  $httpd_dir = $::apache::httpd_dir
+  $httpd_dir = $apache::httpd_dir
 
   # Template uses:
   # $transfer_log
@@ -35,11 +35,11 @@ class apache::mod::nss (
   # passwd_file
   file { 'nss.conf':
     ensure  => file,
-    path    => "${::apache::mod_dir}/nss.conf",
-    mode    => $::apache::file_mode,
+    path    => "${apache::mod_dir}/nss.conf",
+    mode    => $apache::file_mode,
     content => template('apache/mod/nss.conf.erb'),
-    require => Exec["mkdir ${::apache::mod_dir}"],
-    before  => File[$::apache::mod_dir],
+    require => Exec["mkdir ${apache::mod_dir}"],
+    before  => File[$apache::mod_dir],
     notify  => Class['apache::service'],
   }
 }

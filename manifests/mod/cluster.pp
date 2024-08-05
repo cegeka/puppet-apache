@@ -49,20 +49,19 @@
 # @see https://modcluster.io/ for additional documentation.
 #
 class apache::mod::cluster (
-  $allowed_network,
-  $balancer_name,
-  $ip,
-  $version,
-  $enable_mcpm_receive = true,
-  $port = '6666',
-  $keep_alive_timeout = 60,
-  $manager_allowed_network = '127.0.0.1',
-  $max_keep_alive_requests = 0,
-  $server_advertise = true,
-  $advertise_frequency = undef,
+  String $allowed_network,
+  String $balancer_name,
+  Stdlib::IP::Address $ip,
+  String $version,
+  Boolean $enable_mcpm_receive                 = true,
+  Stdlib::Port $port                           = 6666,
+  Integer $keep_alive_timeout                  = 60,
+  Stdlib::IP::Address $manager_allowed_network = '127.0.0.1',
+  Integer $max_keep_alive_requests             = 0,
+  Boolean $server_advertise                    = true,
+  Optional[String] $advertise_frequency        = undef,
 ) {
-
-  include ::apache
+  include apache
 
   ::apache::mod { 'proxy': }
   ::apache::mod { 'proxy_ajp': }
@@ -76,14 +75,13 @@ class apache::mod::cluster (
     ::apache::mod { 'slotmem': }
   }
 
-  file {'cluster.conf':
+  file { 'cluster.conf':
     ensure  => file,
-    path    => "${::apache::mod_dir}/cluster.conf",
-    mode    => $::apache::file_mode,
+    path    => "${apache::mod_dir}/cluster.conf",
+    mode    => $apache::file_mode,
     content => template('apache/mod/cluster.conf.erb'),
-    require => Exec["mkdir ${::apache::mod_dir}"],
-    before  => File[$::apache::mod_dir],
+    require => Exec["mkdir ${apache::mod_dir}"],
+    before  => File[$apache::mod_dir],
     notify  => Class['apache::service'],
   }
-
 }

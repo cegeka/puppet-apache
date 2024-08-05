@@ -1,4 +1,6 @@
 #!/opt/puppetlabs/puppet/bin/ruby
+# frozen_string_literal: true
+
 require 'json'
 require 'open3'
 require 'puppet'
@@ -17,10 +19,11 @@ def service(action, service_name)
   end
   _stdout, stderr, status = Open3.capture3('service', service_name, action)
   raise Puppet::Error, stderr if status != 0
+
   { status: "#{action} successful" }
 end
 
-params = JSON.parse(STDIN.read)
+params = JSON.parse($stdin.read)
 action = params['action']
 service_name = params['service_name']
 

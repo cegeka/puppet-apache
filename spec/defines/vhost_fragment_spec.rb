@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'apache::vhost::fragment' do
@@ -12,7 +14,8 @@ describe 'apache::vhost::fragment' do
         let(:params) do
           {
             vhost: 'default',
-            priority: '15',
+            port: 80,
+            priority: 15
           }
         end
 
@@ -20,10 +23,10 @@ describe 'apache::vhost::fragment' do
           let(:params) { super().merge(content: '# Foo') }
 
           it 'creates a vhost concat fragment' do
-            is_expected.to compile.with_all_deps
-            is_expected.to contain_concat('15-default.conf')
-            is_expected.to create_concat__fragment('default-myfragment')
-              .with_target('15-default.conf')
+            expect(subject).to compile.with_all_deps
+            expect(subject).to contain_concat('15-default-80.conf')
+            expect(subject).to create_concat__fragment('default-myfragment')
+              .with_target('15-default-80.conf')
               .with_order(900)
               .with_content('# Foo')
           end
@@ -33,9 +36,9 @@ describe 'apache::vhost::fragment' do
           let(:params) { super().merge(content: '') }
 
           it 'does not create a vhost concat fragment' do
-            is_expected.to compile.with_all_deps
-            is_expected.to contain_concat('15-default.conf')
-            is_expected.not_to contain_concat__fragment('default-myfragment')
+            expect(subject).to compile.with_all_deps
+            expect(subject).to contain_concat('15-default-80.conf')
+            expect(subject).not_to contain_concat__fragment('default-myfragment')
           end
         end
       end
@@ -44,7 +47,7 @@ describe 'apache::vhost::fragment' do
         let(:params) do
           {
             vhost: 'custom',
-            content: '# Foo',
+            content: '# Foo'
           }
         end
 
@@ -61,9 +64,9 @@ describe 'apache::vhost::fragment' do
           end
 
           it 'creates a vhost concat fragment' do
-            is_expected.to compile.with_all_deps
-            is_expected.to contain_concat('custom.conf')
-            is_expected.to create_concat__fragment('custom-myfragment')
+            expect(subject).to compile.with_all_deps
+            expect(subject).to contain_concat('custom.conf')
+            expect(subject).to create_concat__fragment('custom-myfragment')
               .with_target('custom.conf')
               .with_order(900)
               .with_content('# Foo')
@@ -71,21 +74,21 @@ describe 'apache::vhost::fragment' do
         end
 
         context 'with priority => 42' do
-          let(:params) { super().merge(priority: '42') }
+          let(:params) { super().merge(priority: 42) }
           let(:pre_condition) do
             <<-PUPPET
             include apache
             apache::vhost { 'custom':
               docroot  => '/path/to/docroot',
-              priority => '42',
+              priority => 42,
             }
             PUPPET
           end
 
           it 'creates a vhost concat fragment' do
-            is_expected.to compile.with_all_deps
-            is_expected.to contain_concat('42-custom.conf')
-            is_expected.to create_concat__fragment('custom-myfragment')
+            expect(subject).to compile.with_all_deps
+            expect(subject).to contain_concat('42-custom.conf')
+            expect(subject).to create_concat__fragment('custom-myfragment')
               .with_target('42-custom.conf')
               .with_order(900)
               .with_content('# Foo')
@@ -103,9 +106,9 @@ describe 'apache::vhost::fragment' do
           end
 
           it 'creates a vhost concat fragment' do
-            is_expected.to compile.with_all_deps
-            is_expected.to contain_concat('25-custom.conf')
-            is_expected.to create_concat__fragment('custom-myfragment')
+            expect(subject).to compile.with_all_deps
+            expect(subject).to contain_concat('25-custom.conf')
+            expect(subject).to create_concat__fragment('custom-myfragment')
               .with_target('25-custom.conf')
               .with_order(900)
               .with_content('# Foo')

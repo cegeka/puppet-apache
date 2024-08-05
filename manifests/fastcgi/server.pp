@@ -28,16 +28,19 @@
 # @param file_type
 #   Sets the MIME `content-type` of the file to be processed by the FastCGI server.
 #
+# @param pass_header
+#   Sets a header for the server
+#
 define apache::fastcgi::server (
-  $host          = '127.0.0.1:9000',
-  $timeout       = 15,
-  $flush         = false,
-  $faux_path     = "/var/www/${name}.fcgi",
-  $fcgi_alias    = "/${name}.fcgi",
-  $file_type     = 'application/x-httpd-php',
-  $pass_header   = undef,
+  String $host                    = '127.0.0.1:9000',
+  Integer $timeout                = 15,
+  Boolean $flush                  = false,
+  Stdlib::Absolutepath $faux_path = "/var/www/${name}.fcgi",
+  Stdlib::Unixpath $fcgi_alias    = "/${name}.fcgi",
+  String $file_type               = 'application/x-httpd-php',
+  Optional[String] $pass_header   = undef,
 ) {
-  include ::apache::mod::fastcgi
+  include apache::mod::fastcgi
 
   Apache::Mod['fastcgi'] -> Apache::Fastcgi::Server[$title]
 
@@ -47,13 +50,13 @@ define apache::fastcgi::server (
 
   file { "fastcgi-pool-${name}.conf":
     ensure  => file,
-    path    => "${::apache::confd_dir}/fastcgi-pool-${name}.conf",
+    path    => "${apache::confd_dir}/fastcgi-pool-${name}.conf",
     owner   => 'root',
-    group   => $::apache::params::root_group,
-    mode    => $::apache::file_mode,
+    group   => $apache::params::root_group,
+    mode    => $apache::file_mode,
     content => template('apache/fastcgi/server.erb'),
-    require => Exec["mkdir ${::apache::confd_dir}"],
-    before  => File[$::apache::confd_dir],
+    require => Exec["mkdir ${apache::confd_dir}"],
+    before  => File[$apache::confd_dir],
     notify  => Class['apache::service'],
   }
 }

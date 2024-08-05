@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # @summary
 #   Hashes a password in a format suitable for htpasswd files read by apache.
 #
@@ -16,6 +18,6 @@ Puppet::Functions.create_function(:'apache::pw_hash') do
 
   def apache_pw_hash(password)
     require 'base64'
-    '{SHA}' + Base64.strict_encode64(Digest::SHA1.digest(password))
+    "{SHA}#{Base64.strict_encode64(Digest::SHA1.digest(password))}"
   end
 end

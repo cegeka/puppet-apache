@@ -1,30 +1,22 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'apache::mod::http2', type: :class do
   it_behaves_like 'a mod class, without including apache'
 
   context 'default configuration with parameters on a Debian OS' do
-    let :facts do
-      {
-        lsbdistcodename: 'jessie',
-        osfamily: 'Debian',
-        operatingsystemrelease: '8',
-        id: 'root',
-        kernel: 'Linux',
-        operatingsystem: 'Debian',
-        path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-        is_pe: false,
-      }
-    end
+    include_examples 'Debian 11'
 
     it { is_expected.to contain_class('apache::mod::http2') }
+
     context 'with default values' do
       let(:expected_content) do
-        <<EOT
-# The http2 Apache module configuration file is being
-# managed by Puppet and changes will be overwritten.
+        <<~EOT
+          # The http2 Apache module configuration file is being
+          # managed by Puppet and changes will be overwritten.
 
-EOT
+        EOT
       end
 
       it { is_expected.to contain_file('http2.conf').with(content: expected_content) }
@@ -57,39 +49,37 @@ EOT
           h2_tls_cool_down_secs: 0,
           h2_tls_warm_up_size: 0,
           h2_upgrade: false,
-          h2_window_size: 128_000,
-
-          apache_version: '2.4',
+          h2_window_size: 128_000
         }
       end
 
       let(:expected_content) do
-        <<EOT
-# The http2 Apache module configuration file is being
-# managed by Puppet and changes will be overwritten.
+        <<~EOT
+          # The http2 Apache module configuration file is being
+          # managed by Puppet and changes will be overwritten.
 
-H2CopyFiles Off
-H2Direct On
-H2EarlyHints Off
-H2MaxSessionStreams 100
-H2MaxWorkerIdleSeconds 600
-H2MaxWorkers 20
-H2MinWorkers 10
-H2ModernTLSOnly On
-H2Push On
-H2PushDiarySize 256
-H2PushPriority application/json 32
-H2PushPriority image/jpeg before
-H2PushPriority text/css   interleaved
-H2PushResource /xxx.css
-H2PushResource /xxx.js
-H2SerializeHeaders On
-H2StreamMaxMemSize 128000
-H2TLSCoolDownSecs 0
-H2TLSWarmUpSize 0
-H2Upgrade Off
-H2WindowSize 128000
-EOT
+          H2CopyFiles Off
+          H2Direct On
+          H2EarlyHints Off
+          H2MaxSessionStreams 100
+          H2MaxWorkerIdleSeconds 600
+          H2MaxWorkers 20
+          H2MinWorkers 10
+          H2ModernTLSOnly On
+          H2Push On
+          H2PushDiarySize 256
+          H2PushPriority application/json 32
+          H2PushPriority image/jpeg before
+          H2PushPriority text/css   interleaved
+          H2PushResource /xxx.css
+          H2PushResource /xxx.js
+          H2SerializeHeaders On
+          H2StreamMaxMemSize 128000
+          H2TLSCoolDownSecs 0
+          H2TLSWarmUpSize 0
+          H2Upgrade Off
+          H2WindowSize 128000
+        EOT
       end
 
       it { is_expected.to contain_file('http2.conf').with(content: expected_content) }

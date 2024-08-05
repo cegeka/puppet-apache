@@ -13,7 +13,7 @@
 #
 # @note
 #   Currently requires the puppetlabs/concat module on the Puppet Forge and
-#   uses storeconfigs on the Puppet Master to export/collect resources
+#   uses storeconfigs on the Puppet Server to export/collect resources
 #   from all balancer members.
 #
 # @param name
@@ -27,7 +27,7 @@
 # @param url
 #   The url used to contact the balancer member server.
 #
-# @param  options
+# @param options
 #   Specifies an array of [options](https://httpd.apache.org/docs/current/mod/mod_proxy.html#balancermember) 
 #   after the URL, and accepts any key-value pairs available to `ProxyPass`.
 #
@@ -38,12 +38,11 @@
 #     options          => ['ping=5', 'disablereuse=on', 'retry=5', 'ttl=120'],
 #   }
 #
-define apache::balancermember(
-  $balancer_cluster,
-  $url = "http://${::fqdn}/",
-  $options = [],
+define apache::balancermember (
+  String $balancer_cluster,
+  Apache::ModProxyProtocol $url = "http://${$facts['networking']['fqdn']}/",
+  Array $options       = [],
 ) {
-
   concat::fragment { "BalancerMember ${name}":
     target  => "apache_balancer_${balancer_cluster}",
     content => inline_template(" BalancerMember ${url} <%= @options.join ' ' %>\n"),

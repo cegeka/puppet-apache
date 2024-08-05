@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper_acceptance'
 apache_hash = apache_settings_hash
 describe 'apache parameters' do
@@ -14,6 +16,7 @@ describe 'apache parameters' do
       end
     end
   end
+
   describe 'default_confd_files => true' do
     it 'copies conf.d files' do
       pp = "class { 'apache': default_confd_files => true }"
@@ -51,7 +54,7 @@ describe 'apache parameters' do
       apply_manifest(pp, catch_failures: true)
     end
 
-    describe service(apache_hash['service_name']), skip: 'FM-8483' do
+    describe service(apache_hash['service_name']) do
       it { is_expected.to be_running }
       it { is_expected.to be_enabled }
     end
@@ -68,7 +71,7 @@ describe 'apache parameters' do
       apply_manifest(pp, catch_failures: true)
     end
 
-    describe service(apache_hash['service_name']), skip: 'FM-8483' do
+    describe service(apache_hash['service_name']) do
       it { is_expected.not_to be_running }
       it { is_expected.not_to be_enabled }
     end
@@ -86,7 +89,7 @@ describe 'apache parameters' do
       apply_manifest(pp, catch_failures: true)
     end
 
-    describe service(apache_hash['service_name']), skip: 'FM-8483' do
+    describe service(apache_hash['service_name']) do
       it { is_expected.not_to be_running }
       it { is_expected.not_to be_enabled }
     end
@@ -94,7 +97,7 @@ describe 'apache parameters' do
 
   # IAC-785: The Shibboleth mod does not seem to be configured correctly on Debian 10 systems. We should reenable
   # this test on Debian 10 systems once the issue has been RCA'd and resolved.
-  describe 'conf_enabled => /etc/apache2/conf-enabled', if: os[:family] == 'debian' && os[:release].to_i < 10 do
+  describe 'conf_enabled => /etc/apache2/conf-enabled', skip: 'IAC-785' do
     pp = <<-MANIFEST
         class { 'apache':
           purge_configs   => false,
@@ -135,6 +138,7 @@ describe 'apache parameters' do
     describe file("#{apache_hash['confd_dir']}/test.conf") do
       it { is_expected.to be_file }
     end
+
     describe file("#{apache_hash['confd_dir']}.vhosts/test.conf") do
       it { is_expected.to be_file }
     end
@@ -159,6 +163,7 @@ describe 'apache parameters' do
       describe file("#{apache_hash['confd_dir']}/test.conf") do
         it { is_expected.not_to be_file }
       end
+
       describe file("#{apache_hash['confd_dir']}.vhosts/test.conf") do
         it { is_expected.not_to be_file }
       end
@@ -220,7 +225,7 @@ describe 'apache parameters' do
   describe 'timeout' do
     describe 'setup' do
       it 'applies cleanly' do
-        pp = "class { 'apache': timeout => '1234' }"
+        pp = "class { 'apache': timeout => 1234 }"
         apply_manifest(pp, catch_failures: true)
       end
     end
@@ -362,8 +367,8 @@ describe 'apache parameters' do
       pp = <<-MANIFEST
           class { 'apache':
             log_formats => {
-              'vhost_common'   => '%v %h %l %u %t \\\"%r\\\" %>s %b',
-              'vhost_combined' => '%v %h %l %u %t \\\"%r\\\" %>s %b \\\"%{Referer}i\\\" \\\"%{User-agent}i\\\"',
+              'vhost_common'   => '%v %h %l %u %t \\"%r\\" %>s %b',
+              'vhost_combined' => '%v %h %l %u %t \\"%r\\" %>s %b \\"%{Referer}i\\" \\"%{User-agent}i\\"',
             }
           }
       MANIFEST
@@ -382,7 +387,7 @@ describe 'apache parameters' do
   describe 'keepalive' do
     describe 'setup' do
       it 'applies cleanly' do
-        pp = "class { 'apache': keepalive => 'Off', keepalive_timeout => '30', max_keepalive_requests => '200' }"
+        pp = "class { 'apache': keepalive => 'Off', keepalive_timeout => 30, max_keepalive_requests => 200 }"
         apply_manifest(pp, catch_failures: true)
       end
     end
@@ -398,7 +403,7 @@ describe 'apache parameters' do
   describe 'limitrequestfieldsize' do
     describe 'setup' do
       it 'applies cleanly' do
-        pp = "class { 'apache': limitreqfieldsize => '16830' }"
+        pp = "class { 'apache': limitreqfieldsize => 16830 }"
         apply_manifest(pp, catch_failures: true)
       end
     end
@@ -412,7 +417,7 @@ describe 'apache parameters' do
   describe 'limitrequestfields' do
     describe 'setup' do
       it 'applies cleanly' do
-        pp = "class { 'apache': limitreqfields => '120' }"
+        pp = "class { 'apache': limitreqfields => 120 }"
         apply_manifest(pp, catch_failures: true)
       end
     end
@@ -426,34 +431,30 @@ describe 'apache parameters' do
   describe 'logging' do
     describe 'setup' do
       pp = <<-MANIFEST
-          if $::osfamily == 'RedHat' and "$::selinux" == "true" {
-            $semanage_package = $::operatingsystemmajrelease ? {
-              '5'     => 'policycoreutils',
-              default => 'policycoreutils-python',
-            }
-
-            package { $semanage_package: ensure => installed }
+          if $facts['os']['family'] == 'RedHat' and $facts['os']['selinux']['enabled'] {
             exec { 'set_apache_defaults':
-              command => 'semanage fcontext -a -t httpd_log_t "/apache_spec(/.*)?"',
+              command => 'semanage fcontext -a -t httpd_log_t "/apache_spec/logs(/.*)?"',
+              unless  => 'semanage fcontext --list | grep /apache_spec/logs | grep httpd_log_t',
               path    => '/bin:/usr/bin/:/sbin:/usr/sbin',
-              require => Package[$semanage_package],
             }
             exec { 'restorecon_apache':
-              command => 'restorecon -Rv /apache_spec',
-              path    => '/bin:/usr/bin/:/sbin:/usr/sbin',
-              before  => Service['httpd'],
-              require => Class['apache'],
+              command     => 'restorecon -Rv /apache_spec',
+              path        => '/bin:/usr/bin/:/sbin:/usr/sbin',
+              before      => Service['httpd'],
+              require     => [File['/apache_spec'], Class['apache']],
+              subscribe   => Exec['set_apache_defaults'],
+              refreshonly => true,
             }
           }
-          file { '/apache_spec': ensure => directory, }
-          class { 'apache': logroot => '/apache_spec' }
+          file { ['/apache_spec', '/apache_spec/logs']: ensure => directory, }
+          class { 'apache': logroot => '/apache_spec/logs' }
       MANIFEST
       it 'applies cleanly' do
         apply_manifest(pp, catch_failures: true)
       end
     end
 
-    describe file("/apache_spec/#{apache_hash['error_log']}") do
+    describe file("/apache_spec/logs/#{apache_hash['error_log']}") do
       it { is_expected.to be_file }
     end
   end
@@ -561,6 +562,22 @@ describe 'apache parameters' do
     describe file(apache_hash['conf_file']) do
       it { is_expected.to be_file }
       it { is_expected.to contain 'TraceEnable Off' }
+    end
+  end
+
+  describe 'limitreqline' do
+    pp = <<-MANIFEST
+        class { 'apache':
+          limitreqline => 8190,
+        }
+    MANIFEST
+    it 'applys cleanly' do
+      apply_manifest(pp, catch_failures: true)
+    end
+
+    describe file(apache_hash['conf_file']) do
+      it { is_expected.to be_file }
+      it { is_expected.to contain 'LimitRequestLine 8190' }
     end
   end
 

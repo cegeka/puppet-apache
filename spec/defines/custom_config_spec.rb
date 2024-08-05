@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'apache::custom_config', type: :define do
@@ -7,116 +9,104 @@ describe 'apache::custom_config', type: :define do
   let :title do
     'rspec'
   end
-  let :facts do
-    {
-      osfamily: 'Debian',
-      operatingsystemrelease: '8',
-      lsbdistcodename: 'jessie',
-      operatingsystem: 'Debian',
-      id: 'root',
-      kernel: 'Linux',
-      path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-      is_pe: false,
-    }
-  end
+
+  include_examples 'Debian 11'
 
   context 'defaults with content' do
     let :params do
       {
-        'content' => '# Test',
+        'content' => '# Test'
       }
     end
 
     it {
-      is_expected.to contain_exec('syntax verification for rspec').with('refreshonly' => 'true',
-                                                                        'subscribe'   => 'File[apache_rspec]',
-                                                                        'command'     => '/usr/sbin/apachectl -t',
-                                                                        'notify'      => 'Class[Apache::Service]',
-                                                                        'before'      => 'Exec[remove rspec if invalid]')
+      expect(subject).to contain_exec('syntax verification for rspec')
+        .with('refreshonly' => 'true', 'command' => ['/usr/sbin/apachectl', '-t'])
+        .that_subscribes_to('File[apache_rspec]')
+        .that_notifies('Class[Apache::Service]')
+        .that_comes_before('Exec[remove rspec if invalid]')
     }
+
     it {
-      is_expected.to contain_exec('remove rspec if invalid').with('unless' => '/usr/sbin/apachectl -t',
-                                                                  'subscribe'   => 'File[apache_rspec]',
-                                                                  'refreshonly' => 'true')
+      expect(subject).to contain_exec('remove rspec if invalid')
+        .with('unless' => [['/usr/sbin/apachectl', '-t']], 'refreshonly' => 'true')
+        .that_subscribes_to('File[apache_rspec]')
     }
+
     it {
-      is_expected.to contain_file('apache_rspec').with('ensure' => 'present',
-                                                       'content' => '# Test',
-                                                       'require' => 'Package[httpd]')
+      expect(subject).to contain_file('apache_rspec')
+        .with('ensure' => 'present', 'content' => '# Test')
+        .that_requires('Package[httpd]')
     }
   end
+
   context 'set everything with source' do
     let :params do
       {
-        'confdir'        => '/dne',
-        'priority'       => '30',
-        'source'         => 'puppet:///modules/apache/test',
-        'verify_command' => '/bin/true',
+        'confdir' => '/dne',
+        'priority' => 30,
+        'source' => 'puppet:///modules/apache/test',
+        'verify_command' => ['/bin/true']
       }
     end
 
     it {
-      is_expected.to contain_exec('syntax verification for rspec').with('command' => '/bin/true')
+      expect(subject).to contain_exec('syntax verification for rspec').with('command' => ['/bin/true'])
     }
+
     it {
-      is_expected.to contain_exec('remove rspec if invalid').with('command' => '/bin/rm /dne/30-rspec.conf',
-                                                                  'unless' => '/bin/true')
+      expect(subject).to contain_exec('remove rspec if invalid').with('command' => ['/bin/rm', '/dne/30-rspec.conf'],
+                                                                      'unless' => [['/bin/true']])
     }
+
     it {
-      is_expected.to contain_file('apache_rspec').with('path' => '/dne/30-rspec.conf',
-                                                       'ensure' => 'present',
-                                                       'source' => 'puppet:///modules/apache/test',
-                                                       'require' => 'Package[httpd]')
+      expect(subject).to contain_file('apache_rspec')
+        .that_requires('Package[httpd]')
+        .with('path' => '/dne/30-rspec.conf',
+              'ensure' => 'present',
+              'source' => 'puppet:///modules/apache/test')
     }
   end
+
   context 'verify_config => false' do
     let :params do
       {
-        'content'       => '# test',
-        'verify_config' => false,
+        'content' => '# test',
+        'verify_config' => false
       }
     end
 
     it { is_expected.not_to contain_exec('syntax verification for rspec') }
     it { is_expected.not_to contain_exec('remove rspec if invalid') }
-    it {
-      is_expected.to contain_file('apache_rspec').with('notify' => 'Class[Apache::Service]')
-    }
+    it { is_expected.to contain_file('apache_rspec').that_notifies('Class[Apache::Service]') }
   end
+
   context 'ensure => absent' do
     let :params do
       {
-        'ensure' => 'absent',
+        'ensure' => 'absent'
       }
     end
 
     it { is_expected.not_to contain_exec('syntax verification for rspec') }
     it { is_expected.not_to contain_exec('remove rspec if invalid') }
-    it {
-      is_expected.to contain_file('apache_rspec').with('ensure' => 'absent')
-    }
+    it { is_expected.to contain_file('apache_rspec').with('ensure' => 'absent') }
   end
+
   describe 'validation' do
     context 'both content and source' do
       let :params do
         {
           'content' => 'foo',
-          'source'  => 'bar',
+          'source' => 'bar'
         }
       end
 
-      it do
-        expect {
-          catalogue
-        }.to raise_error(Puppet::Error, %r{Only one of \$content and \$source can be specified\.})
-      end
+      it { is_expected.to compile.and_raise_error(%r{Only one of \$content and \$source can be specified\.}) }
     end
+
     context 'neither content nor source' do
-      it do
-        expect {
-          catalogue
-        }.to raise_error(Puppet::Error, %r{One of \$content and \$source must be specified\.})
-      end
+      it { is_expected.to compile.and_raise_error(%r{One of \$content and \$source must be specified\.}) }
     end
   end
 end

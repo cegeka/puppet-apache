@@ -2,8 +2,10 @@
 
   ## SSL directives
   SSLEngine on
+  <%- unless @mdomain -%>
   SSLCertificateFile      "<%= @ssl_cert %>"
   SSLCertificateKeyFile   "<%= @ssl_key %>"
+  <%- end -%>
   <%- if @ssl_chain -%>
   SSLCertificateChainFile "<%= @ssl_chain %>"
   <%- end -%>
@@ -11,13 +13,21 @@
   SSLProtocol             <%= [@ssl_protocol].flatten.compact.join(' ') %>
   <%- end -%>
   <%- if @ssl_cipher -%>
+  <%- if @ssl_cipher.kind_of?(String) -%>
   SSLCipherSuite          <%= @ssl_cipher %>
+  <%- else -%>
+  SSLCipherSuite          <%= @ssl_cipher.flatten.compact.join(':') %>
   <%- end -%>
-  <%- if @ssl_honorcipherorder -%>
-  SSLHonorCipherOrder     <%= @ssl_honorcipherorder %>
+  <%- end -%>
+  <%- if not @ssl_honorcipherorder.nil? -%>
+  SSLHonorCipherOrder     <%= scope.call_function('apache::bool2httpd', [@_ssl_honorcipherorder]) %>
   <%- end -%>
   <%- if @ssl_verify_client -%>
   SSLVerifyClient         <%= @ssl_verify_client %>
+  <%- if @ssl_verify_depth -%>
+  SSLVerifyDepth          <%= @ssl_verify_depth %>
+  <%- end -%>
+  <%- end -%>
   <%- if @ssl_certs_dir && @ssl_certs_dir != '' -%>
   SSLCACertificatePath    "<%= @ssl_certs_dir %>"
   <%- end -%>
@@ -30,12 +40,8 @@
   <%- if @ssl_crl -%>
   SSLCARevocationFile     "<%= @ssl_crl %>"
   <%- end -%>
-  <%- if @ssl_verify_depth -%>
-  SSLVerifyDepth          <%= @ssl_verify_depth %>
-  <%- end -%>
-  <%- if @ssl_crl_check && scope.function_versioncmp([@apache_version, '2.4']) >= 0 -%>
+  <%- if @ssl_crl_check -%>
   SSLCARevocationCheck    <%= @ssl_crl_check %>
-  <%- end -%>
   <%- end -%>
   <%- if @ssl_options -%>
   SSLOptions <%= Array(@ssl_options).join(' ') %>
@@ -43,13 +49,16 @@
   <%- if @ssl_openssl_conf_cmd -%>
   SSLOpenSSLConfCmd       <%= @ssl_openssl_conf_cmd %>
   <%- end -%>
-  <%- if (not @ssl_stapling.nil?) && (scope.function_versioncmp([@apache_version, '2.4']) >= 0) -%>
+  <%- unless @ssl_stapling.nil? -%>
   SSLUseStapling <%= scope.call_function('apache::bool2httpd', [@ssl_stapling]) %>
   <%- end -%>
-  <%- if @ssl_stapling_timeout && scope.function_versioncmp([@apache_version, '2.4']) >= 0 -%>
+  <%- if @ssl_stapling_timeout -%>
   SSLStaplingResponderTimeout <%= @ssl_stapling_timeout %>
   <%- end -%>
-  <%- if (not @ssl_stapling_return_errors.nil?) && (scope.function_versioncmp([@apache_version, '2.4']) >= 0) -%>
+  <%- unless @ssl_stapling_return_errors.nil? -%>
   SSLStaplingReturnResponderErrors <%= scope.call_function('apache::bool2httpd', [@ssl_stapling_return_errors]) %>
+  <%- end -%>
+  <%- if @ssl_user_name -%>
+  SSLUserName             <%= @ssl_user_name %>
   <%- end -%>
 <% end -%>

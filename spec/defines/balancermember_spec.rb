@@ -1,21 +1,13 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'apache::balancermember', type: :define do
   let :pre_condition do
     'include apache'
   end
-  let :facts do
-    {
-      osfamily: 'Debian',
-      operatingsystem: 'Debian',
-      operatingsystemrelease: '8',
-      lsbdistcodename: 'jessie',
-      id: 'root',
-      path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-      kernel: 'Linux',
-      is_pe: false,
-    }
-  end
+
+  include_examples 'Debian 11'
 
   describe 'allows multiple balancermembers with the same url' do
     let :pre_condition do
@@ -32,12 +24,13 @@ describe 'apache::balancermember', type: :define do
       {
         options: [],
         url: 'http://127.0.0.1:8080/',
-        balancer_cluster: 'balancer-internal',
+        balancer_cluster: 'balancer-internal'
       }
     end
 
     it { is_expected.to contain_concat__fragment('BalancerMember http://127.0.0.1:8080/') }
   end
+
   describe 'allows balancermember with a different target' do
     let :pre_condition do
       'include apache
@@ -52,12 +45,12 @@ describe 'apache::balancermember', type: :define do
       {
         options: [],
         url: 'http://127.0.0.1:8080/',
-        balancer_cluster: 'balancername',
+        balancer_cluster: 'balancername'
       }
     end
 
     it {
-      is_expected.to contain_concat__fragment('BalancerMember http://127.0.0.1:8080/').with(target: 'apache_balancer_balancername')
+      expect(subject).to contain_concat__fragment('BalancerMember http://127.0.0.1:8080/').with(target: 'apache_balancer_balancername')
     }
   end
 end

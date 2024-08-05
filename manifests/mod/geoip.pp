@@ -19,7 +19,7 @@
 # @param scan_proxy_headers
 #   Enables the GeoIPScanProxyHeaders option.
 # 
-# @param scan_proxy_headers_field
+# @param scan_proxy_header_field
 #   Specifies the header mod_geoip uses to determine the client's IP address.
 # 
 # @param use_last_xforwarededfor_ip
@@ -28,16 +28,16 @@
 # @see https://dev.maxmind.com/geoip/legacy/mod_geoip2 for additional documentation.
 #
 class apache::mod::geoip (
-  $enable                     = false,
-  $db_file                    = '/usr/share/GeoIP/GeoIP.dat',
-  $flag                       = 'Standard',
-  $output                     = 'All',
-  $enable_utf8                = undef,
-  $scan_proxy_headers         = undef,
-  $scan_proxy_header_field    = undef,
-  $use_last_xforwarededfor_ip = undef,
+  Boolean $enable                              = false,
+  Stdlib::Absolutepath $db_file                = '/usr/share/GeoIP/GeoIP.dat',
+  String $flag                                 = 'Standard',
+  String $output                               = 'All',
+  Optional[String] $enable_utf8                = undef,
+  Optional[String] $scan_proxy_headers         = undef,
+  Optional[String] $scan_proxy_header_field    = undef,
+  Optional[String] $use_last_xforwarededfor_ip = undef,
 ) {
-  include ::apache
+  include apache
   ::apache::mod { 'geoip': }
 
   # Template uses:
@@ -51,12 +51,11 @@ class apache::mod::geoip (
   # - use_last_xforwarededfor_ip
   file { 'geoip.conf':
     ensure  => file,
-    path    => "${::apache::mod_dir}/geoip.conf",
-    mode    => $::apache::file_mode,
+    path    => "${apache::mod_dir}/geoip.conf",
+    mode    => $apache::file_mode,
     content => template('apache/mod/geoip.conf.erb'),
-    require => Exec["mkdir ${::apache::mod_dir}"],
-    before  => File[$::apache::mod_dir],
+    require => Exec["mkdir ${apache::mod_dir}"],
+    before  => File[$apache::mod_dir],
     notify  => Class['apache::service'],
   }
-
 }

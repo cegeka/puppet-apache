@@ -26,18 +26,18 @@
 #   Defines the path to the mod_wsgi shared object (.so) file.
 # 
 # @see https://github.com/GrahamDumpleton/mod_wsgi for additional documentation.
-#
+# @note Unsupported platforms: SLES: all; RedHat: all; CentOS: all; OracleLinux: all; Scientific: all
 class apache::mod::wsgi (
-  $wsgi_restrict_embedded = undef,
-  $wsgi_socket_prefix     = $::apache::params::wsgi_socket_prefix,
-  $wsgi_python_path       = undef,
-  $wsgi_python_home       = undef,
-  $wsgi_python_optimize   = undef,
-  $wsgi_application_group = undef,
-  $package_name           = undef,
-  $mod_path               = undef,
-) inherits ::apache::params {
-  include ::apache
+  Optional[String] $wsgi_restrict_embedded         = undef,
+  Optional[String] $wsgi_socket_prefix             = $apache::params::wsgi_socket_prefix,
+  Optional[Stdlib::Absolutepath] $wsgi_python_path = undef,
+  Optional[Stdlib::Absolutepath] $wsgi_python_home = undef,
+  Optional[Integer] $wsgi_python_optimize          = undef,
+  Optional[String] $wsgi_application_group         = undef,
+  Optional[String] $package_name                   = undef,
+  Optional[String] $mod_path                       = undef,
+) inherits apache::params {
+  include apache
   if ($package_name != undef and $mod_path == undef) or ($package_name == undef and $mod_path != undef) {
     fail('apache::mod::wsgi - both package_name and mod_path must be specified!')
   }
@@ -46,7 +46,7 @@ class apache::mod::wsgi (
     if $mod_path =~ /\// {
       $_mod_path = $mod_path
     } else {
-      $_mod_path = "${::apache::lib_path}/${mod_path}"
+      $_mod_path = "${apache::lib_path}/${mod_path}"
     }
     ::apache::mod { 'wsgi':
       package => $package_name,
@@ -62,14 +62,13 @@ class apache::mod::wsgi (
   # - $wsgi_socket_prefix
   # - $wsgi_python_path
   # - $wsgi_python_home
-  file {'wsgi.conf':
+  file { 'wsgi.conf':
     ensure  => file,
-    path    => "${::apache::mod_dir}/wsgi.conf",
-    mode    => $::apache::file_mode,
+    path    => "${apache::mod_dir}/wsgi.conf",
+    mode    => $apache::file_mode,
     content => template('apache/mod/wsgi.conf.erb'),
-    require => Exec["mkdir ${::apache::mod_dir}"],
-    before  => File[$::apache::mod_dir],
+    require => Exec["mkdir ${apache::mod_dir}"],
+    before  => File[$apache::mod_dir],
     notify  => Class['apache::service'],
   }
 }
-

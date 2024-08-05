@@ -16,12 +16,12 @@
 # @see https://github.com/gnif/mod_rpaf for additional documentation.
 #
 class apache::mod::rpaf (
-  $sethostname = true,
-  $proxy_ips   = [ '127.0.0.1' ],
-  $header      = 'X-Forwarded-For',
-  $template    = 'apache/mod/rpaf.conf.erb'
+  Variant[Boolean, String] $sethostname = true,
+  Array[Stdlib::IP::Address] $proxy_ips = ['127.0.0.1'],
+  String $header                        = 'X-Forwarded-For',
+  String $template                      = 'apache/mod/rpaf.conf.erb'
 ) {
-  include ::apache
+  include apache
   ::apache::mod { 'rpaf': }
 
   # Template uses:
@@ -30,11 +30,11 @@ class apache::mod::rpaf (
   # - $header
   file { 'rpaf.conf':
     ensure  => file,
-    path    => "${::apache::mod_dir}/rpaf.conf",
-    mode    => $::apache::file_mode,
+    path    => "${apache::mod_dir}/rpaf.conf",
+    mode    => $apache::file_mode,
     content => template($template),
-    require => Exec["mkdir ${::apache::mod_dir}"],
-    before  => File[$::apache::mod_dir],
+    require => Exec["mkdir ${apache::mod_dir}"],
+    before  => File[$apache::mod_dir],
     notify  => Class['apache::service'],
   }
 }

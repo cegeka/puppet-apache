@@ -1,22 +1,11 @@
-<% if @_directories and ! @_directories.empty? -%>
 
   <%- scope.setvar('_template_scope', {}) -%>
+  <%- if @docroot -%>
   ## Directories, there should at least be a declaration for <%= @docroot %>
-  <%- [@_directories].flatten.compact.each do |directory| -%>
-    <%- if scope.function_versioncmp([@apache_version, '2.4']) >= 0 -%>
-      <%- if directory['allow'] and ! [ false, 'false', '' ].include?(directory['allow']) -%>
-        <%- scope.function_warning(["Apache::Vhost: Using allow is deprecated in your Apache version"]) -%>
-      <%- end -%>
-      <%- if directory['deny'] and ! [ false, 'false', '' ].include?(directory['deny']) -%>
-        <%- scope.function_warning(["Apache::Vhost: Using deny is deprecated in your Apache version"]) -%>
-      <%- end -%>
-      <%- if directory['order'] and ! [ false, 'false', '' ].include?(directory['order']) -%>
-        <%- scope.function_warning(["Apache::Vhost: Using order is deprecated in your Apache version"]) -%>
-      <%- end -%>
-      <%- if directory['satisfy'] and ! [ false, 'false', '' ].include?(directory['satisfy']) -%>
-        <%- scope.function_warning(["Apache::Vhost: Using satisfy is deprecated in your Apache version"]) -%>
-      <%- end -%>
-    <%- end -%>
+  <%- else -%>
+  ## Directories
+  <%- end -%>
+  <%- @_directories.each do |directory| -%>
     <%- if directory['path'] and directory['path'] != '' -%>
       <%- if directory['provider'] and directory['provider'].match('(directory|location|files|proxy)') -%>
         <%- if /^(.*)match$/ =~ directory['provider'] -%>
@@ -38,7 +27,7 @@
     <%- if ! directory['geoip_enable'].nil? -%>
     GeoIPEnable <%= scope.call_function('apache::bool2httpd', [directory['geoip_enable']]) %>
     <%- end -%>
-    <%- if directory['options'] -%>
+    <%- if directory['options'] && Array(directory['options']).any? -%>
     Options <%= Array(directory['options']).join(' ') %>
     <%- end -%>
     <%- if provider == 'Directory' -%>
@@ -131,6 +120,9 @@
     <%- end -%>
     <%- unless directory['passenger_load_shell_envvars'].nil? -%>
     PassengerLoadShellEnvvars <%= scope.call_function('apache::bool2httpd', [directory['passenger_load_shell_envvars']]) %>
+    <%- end -%>
+    <%- unless directory['passenger_preload_bundler'].nil? -%>
+    PassengerPreloadBundler <%= scope.call_function('apache::bool2httpd', [directory['passenger_preload_bundler']]) %>
     <%- end -%>
     <%- unless directory['passenger_rolling_restarts'].nil? -%>
     PassengerRollingRestarts <%= scope.call_function('apache::bool2httpd', [directory['passenger_rolling_restarts']]) %>
@@ -339,8 +331,11 @@
     <%- if directory['ssl_options'] -%>
     SSLOptions <%= Array(directory['ssl_options']).join(' ') %>
     <%- end -%>
-    <%- if directory['suphp'] and @suphp_engine == 'on' -%>
-    suPHP_UserGroup <%= directory['suphp']['user'] %> <%= directory['suphp']['group'] %>
+    <%- if directory['ssl_verify_client'] and directory['ssl_verify_client'].match('(none|optional|require|optional_no_ca)') -%>
+    SSLVerifyClient <%= directory['ssl_verify_client'] %>
+    <%- if directory['ssl_verify_depth'] -%>
+    SSLVerifyDepth <%= directory['ssl_verify_depth'] %>
+    <%- end -%>
     <%- end -%>
     <%- if directory['fcgiwrapper'] -%>
     FcgidWrapper <%= directory['fcgiwrapper']['command'] %> <%= directory['fcgiwrapper']['suffix'] %> <%= directory['fcgiwrapper']['virtual'] %>
@@ -461,11 +456,19 @@
         <%- end -%>
       <%- end -%>
     <%- end -%>
-    <%- if directory['proxy_pass'] and directory['provider'] and directory['provider'].match('location') -%>
-      <%- directory['proxy_pass'].flatten.compact.each do |proxy| -%>
-    ProxyPass <%= proxy['url'] -%>
+    <%- if (directory['proxy_pass'] or directory['proxy_pass_match']) and directory['provider'] and directory['provider'].match('location') -%>
+      <%# In a Location container, only one of ProxyPass or ProxyPassMatch are allowed, so only need to handle on case at a time -%>
+         <%- if directory['proxy_pass_match']
+               proxy_pass = 'ProxyPassMatch'
+               directory_proxy_pass = directory['proxy_pass_match']
+             else
+               proxy_pass = 'ProxyPass'
+               directory_proxy_pass = directory['proxy_pass']
+             end -%>
+      <%- directory_proxy_pass.flatten.compact.each do |proxy| -%>
+    <%= proxy_pass -%> <%= proxy['url'] -%>
         <%- if proxy['params'] -%>
-          <%- proxy['params'].keys.sort.each do |key| -%> <%= key %>=<%= proxy['params'][key] -%>
+          <%- proxy['params'].sort.each do |key, value| -%> <%= key %>=<%= value -%>
           <%- end -%>
         <%- end -%>
         <%- if proxy['keywords'] %> <%= proxy['keywords'].join(' ') -%>
@@ -497,7 +500,9 @@
     <%- if directory['custom_fragment'] -%>
     <%= directory['custom_fragment'] %>
     <%- end -%>
+    <%- if directory['gssapi'] -%>
+      <%= scope.call_function('epp',["apache/vhost/_gssapi.epp", directory['gssapi']]) -%>
+    <%- end -%>
   </<%= provider %>>
     <%- end -%>
   <%- end -%>
-<%- end -%>

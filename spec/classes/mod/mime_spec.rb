@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 # This function is called inside the OS specific conte, :compilexts
@@ -5,10 +7,10 @@ def general_mime_specs
   it { is_expected.to contain_apache__mod('mime') }
 
   it do
-    is_expected.to contain_file('mime.conf').with_content(%r{AddHandler type-map var})
-    is_expected.to contain_file('mime.conf').with_content(%r{ddOutputFilter INCLUDES .shtml})
-    is_expected.to contain_file('mime.conf').with_content(%r{AddType text/html .shtml})
-    is_expected.to contain_file('mime.conf').with_content(%r{AddType application/x-compress .Z})
+    expect(subject).to contain_file('mime.conf').with_content(%r{AddHandler type-map var})
+    expect(subject).to contain_file('mime.conf').with_content(%r{ddOutputFilter INCLUDES .shtml})
+    expect(subject).to contain_file('mime.conf').with_content(%r{AddType text/html .shtml})
+    expect(subject).to contain_file('mime.conf').with_content(%r{AddType application/x-compress .Z})
   end
 end
 
@@ -16,18 +18,7 @@ describe 'apache::mod::mime', type: :class do
   it_behaves_like 'a mod class, without including apache'
 
   context 'On a Debian OS with default params', :compile do
-    let :facts do
-      {
-        osfamily: 'Debian',
-        operatingsystemrelease: '8',
-        lsbdistcodename: 'jessie',
-        operatingsystem: 'Debian',
-        id: 'root',
-        kernel: 'Linux',
-        path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-        is_pe: false,
-      }
-    end
+    include_examples 'Debian 11'
 
     general_mime_specs
 
@@ -35,20 +26,10 @@ describe 'apache::mod::mime', type: :class do
   end
 
   context 'on a RedHat OS with default params', :compile do
-    let :facts do
-      {
-        osfamily: 'RedHat',
-        operatingsystemrelease: '6',
-        operatingsystem: 'RedHat',
-        id: 'root',
-        kernel: 'Linux',
-        path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-        is_pe: false,
-      }
-    end
+    include_examples 'RedHat 8'
 
     general_mime_specs
 
-    it { is_expected.to contain_file('mime.conf').with_path('/etc/httpd/conf.d/mime.conf') }
+    it { is_expected.to contain_file('mime.conf').with_path('/etc/httpd/conf.modules.d/mime.conf') }
   end
 end

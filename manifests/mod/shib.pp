@@ -22,21 +22,21 @@
 #   See the [Shibboleth Service Provider Installation Guide](http://wiki.aaf.edu.au/tech-info/sp-install-guide).
 #
 # @see https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig for additional documentation.
-#
+# @note Unsupported platforms: RedHat: all; CentOS: all; Scientific: all; SLES: all; Debian: 7, 8; Ubuntu: all; OracleLinux: all
 class apache::mod::shib (
-  $suppress_warning = false,
-  $mod_full_path    = undef,
-  $package_name     = undef,
-  $mod_lib          = undef,
+  Boolean $suppress_warning                     = false,
+  Optional[Stdlib::Absolutepath] $mod_full_path = undef,
+  Optional[String] $package_name                = undef,
+  Optional[String] $mod_lib                     = undef,
 ) {
-  include ::apache
-  if $::osfamily == 'RedHat' and ! $suppress_warning {
+  include apache
+  if $facts['os']['family'] == 'RedHat' and ! $suppress_warning {
     warning('RedHat distributions do not have Apache mod_shib in their default package repositories.')
   }
 
   $mod_shib = 'shib2'
 
-  apache::mod {$mod_shib:
+  apache::mod { $mod_shib:
     id      => 'mod_shib',
     path    => $mod_full_path,
     package => $package_name,

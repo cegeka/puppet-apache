@@ -47,10 +47,6 @@
 #   that are trusted to set a valid value inside the specified header. See
 #   `$trusted_proxy` for details.
 #
-# @param apache_version
-#   A version string used to validate that your apache version supports
-#   `mod_remoteip`. If not specified, `$::apache::apache_version` is used.
-#
 # @see https://httpd.apache.org/docs/current/mod/mod_remoteip.html for additional documentation.
 #
 class apache::mod::remoteip (
@@ -64,14 +60,8 @@ class apache::mod::remoteip (
   Optional[Array[Stdlib::Host]]                              $trusted_proxy             = undef,
   Optional[Array[Stdlib::Host]]                              $trusted_proxy_ips         = undef,
   Optional[Stdlib::Absolutepath]                             $trusted_proxy_list        = undef,
-  Optional[String]                                           $apache_version            = undef,
 ) {
-  include ::apache
-
-  $_apache_version = pick($apache_version, $apache::apache_version)
-  if versioncmp($_apache_version, '2.4') < 0 {
-    fail('mod_remoteip is only available in Apache 2.4')
-  }
+  include apache
 
   if $proxy_ips {
     deprecation('apache::mod::remoteip::proxy_ips', 'This parameter is deprecated, please use `internal_proxy`.')
@@ -104,11 +94,11 @@ class apache::mod::remoteip (
 
   file { 'remoteip.conf':
     ensure  => file,
-    path    => "${::apache::mod_dir}/remoteip.conf",
-    mode    => $::apache::file_mode,
+    path    => "${apache::mod_dir}/remoteip.conf",
+    mode    => $apache::file_mode,
     content => epp('apache/mod/remoteip.conf.epp', $template_parameters),
-    require => Exec["mkdir ${::apache::mod_dir}"],
-    before  => File[$::apache::mod_dir],
+    require => Exec["mkdir ${apache::mod_dir}"],
+    before  => File[$apache::mod_dir],
     notify  => Class['apache::service'],
   }
 }

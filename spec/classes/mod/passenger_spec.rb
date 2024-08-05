@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'apache::mod::passenger', type: :class do
   on_supported_os.each do |os, facts|
-    context "on #{os} " do
+    context "on #{os}" do
       let :facts do
         facts
       end
@@ -13,15 +15,18 @@ describe 'apache::mod::passenger', type: :class do
           it { is_expected.to contain_class('apache::params') }
           it { is_expected.to contain_apache__mod('passenger') }
           it { is_expected.to contain_package('libapache2-mod-passenger') }
+
           it {
-            is_expected.to contain_file('zpassenger.load').with('path' => '/etc/apache2/mods-available/zpassenger.load')
+            expect(subject).to contain_file('zpassenger.load').with('path' => '/etc/apache2/mods-available/zpassenger.load')
           }
+
           it {
-            is_expected.to contain_file('passenger.conf').with('path' => '/etc/apache2/mods-available/passenger.conf')
+            expect(subject).to contain_file('passenger.conf').with('path' => '/etc/apache2/mods-available/passenger.conf')
           }
 
           passenger_config_options = {
             'passenger_allow_encoded_slashes' => { type: 'OnOff', pass_opt: :PassengerAllowEncodedSlashes },
+            'passenger_anonymous_telemetry_proxy' => { type: 'String', pass_opt: :PassengerAnonymousTelemetryProxy },
             'passenger_app_env' => { type: 'String', pass_opt: :PassengerAppEnv },
             'passenger_app_group_name' => { type: 'String', pass_opt: :PassengerAppGroupName },
             'passenger_app_root' => { type: 'FullPath', pass_opt: :PassengerAppRoot },
@@ -36,6 +41,8 @@ describe 'apache::mod::passenger', type: :class do
             'passenger_default_group' => { type: 'String', pass_opt: :PassengerDefaultGroup },
             'passenger_default_ruby' => { type: 'FullPath', pass_opt: :PassengerDefaultRuby },
             'passenger_default_user' => { type: 'String', pass_opt: :PassengerDefaultUser },
+            'passenger_disable_anonymous_telemetry' => { type: 'Boolean', pass_opt: :PassengerDisableAnonymousTelemetry },
+            'passenger_disable_log_prefix' => { type: 'Boolean', pass_opt: :PassengerDisableLogPrefix },
             'passenger_disable_security_update_check' => { type: 'OnOff', pass_opt: :PassengerDisableSecurityUpdateCheck },
             'passenger_enabled' => { type: 'OnOff', pass_opt: :PassengerEnabled },
             'passenger_error_override' => { type: 'OnOff', pass_opt: :PassengerErrorOverride },
@@ -47,6 +54,7 @@ describe 'apache::mod::passenger', type: :class do
             'passenger_high_performance' => { type: 'OnOff', pass_opt: :PassengerHighPerformance },
             'passenger_instance_registry_dir' => { type: 'FullPath', pass_opt: :PassengerInstanceRegistryDir },
             'passenger_load_shell_envvars' => { type: 'OnOff', pass_opt: :PassengerLoadShellEnvvars },
+            'passenger_preload_bundler' => { type: 'Boolean', pass_opt: :PassengerPreloadBundler },
             'passenger_log_file' => { type: 'FullPath', pass_opt: :PassengerLogFile },
             'passenger_log_level' => { type: 'Integer', pass_opt: :PassengerLogLevel },
             'passenger_lve_min_uid' => { type: 'Integer', pass_opt: :PassengerLveMinUid },
@@ -74,12 +82,14 @@ describe 'apache::mod::passenger', type: :class do
             'passenger_security_update_check_proxy' => { type: 'URI', pass_opt: :PassengerSecurityUpdateCheckProxy },
             'passenger_show_version_in_header' => { type: 'OnOff', pass_opt: :PassengerShowVersionInHeader },
             'passenger_socket_backlog' => { type: 'Integer', pass_opt: :PassengerSocketBacklog },
+            'passenger_spawn_dir' => { type: 'FullPath', pass_opt: :PassengerSpawnDir },
             'passenger_spawn_method' => { type: ['smart', 'direct'], pass_opt: :PassengerSpawnMethod },
             'passenger_start_timeout' => { type: 'Integer', pass_opt: :PassengerStartTimeout },
             'passenger_startup_file' => { type: 'RelPath', pass_opt: :PassengerStartupFile },
             'passenger_stat_throttle_rate' => { type: 'Integer', pass_opt: :PassengerStatThrottleRate },
             'passenger_sticky_sessions' => { type: 'OnOff', pass_opt: :PassengerStickySessions },
             'passenger_sticky_sessions_cookie_name' => { type: 'String', pass_opt: :PassengerStickySessionsCookieName },
+            'passenger_sticky_sessions_cookie_attributes' => { type: 'QuotedString', pass_opt: :PassengerStickySessionsCookieAttributes },
             'passenger_thread_count' => { type: 'Integer', pass_opt: :PassengerThreadCount },
             'passenger_use_global_queue' => { type: 'String', pass_opt: :PassengerUseGlobalQueue },
             'passenger_user' => { type: 'String', pass_opt: :PassengerUser },
@@ -99,7 +109,7 @@ describe 'apache::mod::passenger', type: :class do
             'rails_ruby' => { type: 'String', pass_opt: :RailsRuby },
             'rails_spawn_method' => { type: 'String', pass_opt: :RailsSpawnMethod },
             'rails_user_switching' => { type: 'String', pass_opt: :RailsUserSwitching },
-            'wsgi_auto_detect' => { type: 'String', pass_opt: :WsgiAutoDetect },
+            'wsgi_auto_detect' => { type: 'String', pass_opt: :WsgiAutoDetect }
           }
           passenger_config_options.each do |config_option, config_hash|
             puppetized_config_option = config_option
@@ -127,8 +137,19 @@ describe 'apache::mod::passenger', type: :class do
                   it { is_expected.to contain_file('passenger.conf').with_content(%r{^  #{config_hash[:pass_opt]} "#{valid_value}"$}) }
                 end
               end
-            when 'URI', 'String', 'Integer'
+            when 'URI', 'String'
               valid_config_values = ['some_value_for_you']
+              valid_config_values.each do |valid_value|
+                describe "with #{puppetized_config_option} => #{valid_value}" do
+                  let :params do
+                    { puppetized_config_option.to_sym => valid_value }
+                  end
+
+                  it { is_expected.to contain_file('passenger.conf').with_content(%r{^  #{config_hash[:pass_opt]} #{valid_value}$}) }
+                end
+              end
+            when 'Integer'
+              valid_config_values = [4711]
               valid_config_values.each do |valid_value|
                 describe "with #{puppetized_config_option} => #{valid_value}" do
                   let :params do
@@ -149,6 +170,24 @@ describe 'apache::mod::passenger', type: :class do
                   it { is_expected.to contain_file('passenger.conf').with_content(%r{^  #{config_hash[:pass_opt]} #{valid_value}$}) }
                 end
               end
+            when 'Boolean'
+              valid_config_values = [true, false]
+              valid_config_values.each do |valid_value|
+                describe "with #{puppetized_config_option} => #{valid_value}" do
+                  let :params do
+                    { puppetized_config_option.to_sym => valid_value }
+                  end
+
+                  let :expected_value do
+                    {
+                      true => 'On',
+                      false => 'Off'
+                    }[valid_value]
+                  end
+
+                  it { is_expected.to contain_file('passenger.conf').with_content(%r{^  #{config_hash[:pass_opt]} #{expected_value}$}) }
+                end
+              end
             else
               valid_config_values = config_hash[:type]
               valid_config_values.each do |valid_value|
@@ -167,11 +206,13 @@ describe 'apache::mod::passenger', type: :class do
         it { is_expected.to contain_class('apache::params') }
         it { is_expected.to contain_apache__mod('passenger') }
         it { is_expected.to contain_package('libapache2-mod-passenger') }
+
         it {
-          is_expected.to contain_file('zpassenger.load').with('path' => '/etc/apache2/mods-available/zpassenger.load')
+          expect(subject).to contain_file('zpassenger.load').with('path' => '/etc/apache2/mods-available/zpassenger.load')
         }
+
         it {
-          is_expected.to contain_file('passenger.conf').with('path' => '/etc/apache2/mods-available/passenger.conf')
+          expect(subject).to contain_file('passenger.conf').with('path' => '/etc/apache2/mods-available/passenger.conf')
         }
 
         context 'passenger config with passenger_installed_version set', test: true do
@@ -179,7 +220,7 @@ describe 'apache::mod::passenger', type: :class do
             let :params do
               {
                 passenger_installed_version: '4.0.0',
-                passenger_instance_registry_dir: '/some/path/to/nowhere',
+                passenger_instance_registry_dir: '/some/path/to/nowhere'
               }
             end
 
@@ -190,7 +231,7 @@ describe 'apache::mod::passenger', type: :class do
             let :params do
               {
                 passenger_installed_version: '5.0.0',
-                rails_autodetect: 'on',
+                rails_autodetect: 'on'
               }
             end
 
@@ -198,13 +239,10 @@ describe 'apache::mod::passenger', type: :class do
           end
 
           describe 'warns when an option is deprecated' do
-            puts facts[:os]['family']
-            puts facts[:os]['release']
-
             let :params do
               {
                 passenger_installed_version: '5.0.0',
-                rails_ruby: '/some/path/to/ruby',
+                rails_ruby: '/some/path/to/ruby'
               }
             end
 
@@ -219,6 +257,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{PassengerRoot "/usr/lib/example"}) }
         end
+
         describe 'with passenger_ruby => /usr/lib/example/ruby' do
           let :params do
             { passenger_ruby: '/usr/lib/example/ruby' }
@@ -226,6 +265,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{PassengerRuby "/usr/lib/example/ruby"}) }
         end
+
         describe 'with passenger_default_ruby => /usr/lib/example/ruby1.9.3' do
           let :params do
             { passenger_ruby: '/usr/lib/example/ruby1.9.3' }
@@ -233,6 +273,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{PassengerRuby "/usr/lib/example/ruby1.9.3"}) }
         end
+
         describe 'with passenger_high_performance => on' do
           let :params do
             { passenger_high_performance: 'on' }
@@ -240,6 +281,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerHighPerformance on$}) }
         end
+
         describe 'with passenger_pool_idle_time => 1200' do
           let :params do
             { passenger_pool_idle_time: 1200 }
@@ -247,6 +289,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerPoolIdleTime 1200$}) }
         end
+
         describe 'with passenger_max_request_queue_size => 100' do
           let :params do
             { passenger_max_request_queue_size: 100 }
@@ -262,6 +305,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerMaxRequests 20$}) }
         end
+
         describe 'with passenger_spawn_method => direct' do
           let :params do
             { passenger_spawn_method: 'direct' }
@@ -269,6 +313,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerSpawnMethod direct$}) }
         end
+
         describe 'with passenger_stat_throttle_rate => 10' do
           let :params do
             { passenger_stat_throttle_rate: 10 }
@@ -276,6 +321,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerStatThrottleRate 10$}) }
         end
+
         describe 'with passenger_max_pool_size => 16' do
           let :params do
             { passenger_max_pool_size: 16 }
@@ -283,6 +329,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerMaxPoolSize 16$}) }
         end
+
         describe 'with passenger_min_instances => 5' do
           let :params do
             { passenger_min_instances: 5 }
@@ -290,6 +337,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerMinInstances 5$}) }
         end
+
         describe 'with passenger_max_instances_per_app => 8' do
           let :params do
             { passenger_max_instances_per_app: 8 }
@@ -297,6 +345,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerMaxInstancesPerApp 8$}) }
         end
+
         describe 'with rack_autodetect => on' do
           let :params do
             { rack_autodetect: 'on' }
@@ -304,6 +353,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  RackAutoDetect on$}) }
         end
+
         describe 'with rails_autodetect => on' do
           let :params do
             { rails_autodetect: 'on' }
@@ -311,6 +361,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  RailsAutoDetect on$}) }
         end
+
         describe 'with passenger_use_global_queue => on' do
           let :params do
             { passenger_use_global_queue: 'on' }
@@ -318,6 +369,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerUseGlobalQueue on$}) }
         end
+
         describe "with passenger_app_env => 'foo'" do
           let :params do
             { passenger_app_env: 'foo' }
@@ -325,6 +377,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerAppEnv foo$}) }
         end
+
         describe "with passenger_log_file => '/var/log/apache2/passenger.log'" do
           let :params do
             { passenger_log_file: '/var/log/apache2/passenger.log' }
@@ -332,6 +385,7 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerLogFile "/var/log/apache2/passenger.log"$}) }
         end
+
         describe 'with passenger_log_level => 3' do
           let :params do
             { passenger_log_level: 3 }
@@ -339,47 +393,43 @@ describe 'apache::mod::passenger', type: :class do
 
           it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerLogLevel 3$}) }
         end
+
         describe "with mod_path => '/usr/lib/foo/mod_foo.so'" do
           let :params do
             { mod_path: '/usr/lib/foo/mod_foo.so' }
           end
 
-          it { is_expected.to contain_file('zpassenger.load').with_content(%r{^LoadModule passenger_module \/usr\/lib\/foo\/mod_foo\.so$}) }
+          it { is_expected.to contain_file('zpassenger.load').with_content(%r{^LoadModule passenger_module /usr/lib/foo/mod_foo\.so$}) }
         end
+
         describe "with mod_lib_path => '/usr/lib/foo'" do
           let :params do
             { mod_lib_path: '/usr/lib/foo' }
           end
 
-          it { is_expected.to contain_file('zpassenger.load').with_content(%r{^LoadModule passenger_module \/usr\/lib\/foo\/mod_passenger\.so$}) }
+          it { is_expected.to contain_file('zpassenger.load').with_content(%r{^LoadModule passenger_module /usr/lib/foo/mod_passenger\.so$}) }
         end
+
         describe "with mod_lib => 'mod_foo.so'" do
           let :params do
             { mod_lib: 'mod_foo.so' }
           end
 
-          it { is_expected.to contain_file('zpassenger.load').with_content(%r{^LoadModule passenger_module \/usr\/lib\/apache2\/modules\/mod_foo\.so$}) }
+          it { is_expected.to contain_file('zpassenger.load').with_content(%r{^LoadModule passenger_module /usr/lib/apache2/modules/mod_foo\.so$}) }
         end
+
         describe "with mod_id => 'mod_foo'" do
           let :params do
             { mod_id: 'mod_foo' }
           end
 
-          it { is_expected.to contain_file('zpassenger.load').with_content(%r{^LoadModule mod_foo \/usr\/lib\/apache2\/modules\/mod_passenger\.so$}) }
+          it { is_expected.to contain_file('zpassenger.load').with_content(%r{^LoadModule mod_foo /usr/lib/apache2/modules/mod_passenger\.so$}) }
         end
 
-        context 'with Ubuntu 16.04 defaults' do
+        context 'with defaults' do
           it { is_expected.to contain_file('passenger.conf').with_content(%r{PassengerRoot "/usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini"}) }
           it { is_expected.to contain_file('passenger.conf').without_content(%r{PassengerRuby}) }
           it { is_expected.to contain_file('passenger.conf').with_content(%r{PassengerDefaultRuby "/usr/bin/ruby"}) }
-        end
-
-        if facts[:os]['release']['major'].to_i == 8
-          context 'with Debian 8 defaults' do
-            it { is_expected.to contain_file('passenger.conf').with_content(%r{PassengerRoot "/usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini"}) }
-            it { is_expected.to contain_file('passenger.conf').without_content(%r{PassengerRuby}) }
-            it { is_expected.to contain_file('passenger.conf').with_content(%r{PassengerDefaultRuby "/usr/bin/ruby"}) }
-          end
         end
       when 'RedHat'
         context 'on a RedHat OS' do
@@ -389,49 +439,57 @@ describe 'apache::mod::passenger', type: :class do
               it { is_expected.to contain_class('apache::params') }
               it { is_expected.to contain_apache__mod('passenger') }
               it { is_expected.to contain_package('mod_passenger') }
+
               it {
-                is_expected.to contain_file('passenger_package.conf').with('path' => '/etc/httpd/conf.d/passenger.conf')
+                expect(subject).to contain_file('passenger_package.conf').with('path' => '/etc/httpd/conf.d/passenger.conf')
               }
+
               it { is_expected.to contain_file('passenger_package.conf').without_content }
               it { is_expected.to contain_file('passenger_package.conf').without_source }
+
               it {
-                is_expected.to contain_file('zpassenger.load').with('path' => '/etc/httpd/conf.d/zpassenger.load')
+                expect(subject).to contain_file('zpassenger.load').with('path' => '/etc/httpd/conf.d/zpassenger.load')
               }
+
               it { is_expected.to contain_file('passenger.conf').without_content(%r{PassengerRoot}) }
               it { is_expected.to contain_file('passenger.conf').without_content(%r{PassengerRuby}) }
+
               describe "with passenger_root => '/usr/lib/example'" do
                 let :params do
                   { passenger_root: '/usr/lib/example' }
                 end
 
-                it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerRoot "\/usr\/lib\/example"$}) }
+                it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerRoot "/usr/lib/example"$}) }
               end
+
               describe 'with passenger_ruby => /usr/lib/example/ruby' do
                 let :params do
                   { passenger_ruby: '/usr/lib/example/ruby' }
                 end
 
-                it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerRuby "\/usr\/lib\/example\/ruby"$}) }
+                it { is_expected.to contain_file('passenger.conf').with_content(%r{^  PassengerRuby "/usr/lib/example/ruby"$}) }
               end
             end
           when '7'
 
             context 'on EL7' do
               it {
-                is_expected.to contain_file('passenger_package.conf').with('path' => '/etc/httpd/conf.d/passenger.conf')
+                expect(subject).to contain_file('passenger_package.conf').with('path' => '/etc/httpd/conf.d/passenger.conf')
               }
+
               it {
-                is_expected.to contain_file('zpassenger.load').with('path' => '/etc/httpd/conf.modules.d/zpassenger.load')
+                expect(subject).to contain_file('zpassenger.load').with('path' => '/etc/httpd/conf.modules.d/zpassenger.load')
               }
             end
           when '8'
 
             context 'on EL8' do
               it {
-                is_expected.to contain_file('passenger_package.conf').with('path' => '/etc/httpd/conf.d/passenger.conf')
+                expect(subject).to contain_file('passenger_package.conf').with('path' => '/etc/httpd/conf.d/passenger.conf')
               }
+
               it {
-                is_expected.to contain_file('zpassenger.load').with('path' => '/etc/httpd/conf.modules.d/zpassenger.load')
+                expect(subject).to contain_file('zpassenger.load').with('path' => '/etc/httpd/conf.modules.d/zpassenger.load')
               }
             end
           end
