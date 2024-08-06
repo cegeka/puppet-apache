@@ -113,36 +113,26 @@ define apache::mod (
       notify  => Class['apache::service'],
     }
   }
-  if $package_ensure != 'absent' {
+
+  $parameters = {
+    'loadfiles' => $loadfiles,
+    '_id'       => $_id,
+    '_path'     => $_path,
+  }
+
   file { $_loadfile_name:
     ensure  => file,
     path    => "${mod_dir}/${_loadfile_name}",
     owner   => 'root',
     group   => $apache::params::root_group,
     mode    => $apache::file_mode,
-    content => template('apache/mod/load.erb'),
+    content => epp('apache/mod/load.epp', $parameters),
     require => [
       Package['httpd'],
       Exec["mkdir ${mod_dir}"],
     ],
     before  => File[$mod_dir],
     notify  => Class['apache::service'],
-  }
-  } else {
-    file { $_loadfile_name:
-      ensure  => $package_ensure,
-      path    => "${mod_dir}/${_loadfile_name}",
-      owner   => 'root',
-      group   => $::apache::params::root_group,
-      mode    => $::apache::file_mode,
-      content => template('apache/mod/load.erb'),
-      require => [
-        Package['httpd'],
-        Exec["mkdir ${mod_dir}"],
-      ],
-      before  => File[$mod_dir],
-      notify  => Class['apache::service'],
-    }
   }
 
   if $facts['os']['family'] == 'Debian' {
